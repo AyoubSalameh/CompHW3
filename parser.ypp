@@ -1,0 +1,135 @@
+%{
+    #include <iostream>
+    #include "output.hpp"
+    using namespace std;
+    int yylex();
+    extern int yylineno;
+    void yyerror(const char*);
+%}
+
+%nonassoc VOID
+%nonassoc INT
+%nonassoc BYTE
+%nonassoc BOOL
+%nonassoc OVERRIDE
+
+%nonassoc TRUE
+%nonassoc FALSE
+%nonassoc RETURN
+%nonassoc IF
+
+%nonassoc WHILE
+%nonassoc BREAK
+%nonassoc CONTINUE
+%nonassoc SC
+%nonassoc COMMA
+%nonassoc ID
+%nonassoc NUM
+%nonassoc STRING
+%nonassoc B
+
+%right ASSIGN
+%left OR
+%left AND
+
+%left EQUALITY
+%left RELATION
+
+%left PLUS_MINUS
+%left MUL_DIV
+
+%right NOT
+
+%left LPAREN
+%left RPAREN
+%left LBRACE
+%left RBRACE
+
+%nonassoc ELSE
+
+%%
+Program: Funcs     {output::printProductionRule(1);}
+
+Funcs: /*epsilon*/     {output::printProductionRule(2);}
+     | FuncDecl Funcs   {output::printProductionRule(3);}
+     ;
+
+FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE   {output::printProductionRule(4);}
+
+OverRide: /*epsilon*/   {output::printProductionRule(5);}
+        | OVERRIDE  {output::printProductionRule(6);}
+        ;
+
+RetType: Type   {output::printProductionRule(7);}
+       | VOID   {output::printProductionRule(8);}
+       ;
+
+Formals: /*epsilon*/    {output::printProductionRule(9);}
+       | FormalsList    {output::printProductionRule(10);}
+       ;
+
+FormalsList: FormalDecl     {output::printProductionRule(11);}
+           | FormalDecl COMMA FormalsList   {output::printProductionRule(12);}
+           ;
+
+FormalDecl: Type ID    {output::printProductionRule(13);}
+
+Statements: Statement  {output::printProductionRule(14);}
+          | Statements Statement    {output::printProductionRule(15);}
+          ;
+          
+Statement: LBRACE Statements RBRACE    {output::printProductionRule(16);}
+          | Type ID SC                  {output::printProductionRule(17);}
+          | Type ID ASSIGN Exp SC       {output::printProductionRule(18);}
+          | ID ASSIGN Exp SC            {output::printProductionRule(19);}
+          | Call SC                     {output::printProductionRule(20);}
+          | RETURN SC                   {output::printProductionRule(21);}
+          | RETURN Exp SC               {output::printProductionRule(22);}
+          | IF LPAREN Exp RPAREN Statement  {output::printProductionRule(23);}
+          | IF LPAREN Exp RPAREN Statement ELSE Statement       {output::printProductionRule(24);}
+          | WHILE LPAREN Exp RPAREN Statement       {output::printProductionRule(25);}
+          | BREAK SC                    {output::printProductionRule(26);}
+          | CONTINUE SC                 {output::printProductionRule(27);}
+          ;
+          
+Call: ID LPAREN ExpList RPAREN      {output::printProductionRule(28);}
+    | ID LPAREN RPAREN          {output::printProductionRule(29);}
+    ;
+    
+ExpList: Exp       {output::printProductionRule(30);}
+       | Exp COMMA ExpList      {output::printProductionRule(31);}
+       ;
+       
+Type: INT       {output::printProductionRule(32);}
+    | BYTE      {output::printProductionRule(33);}
+    | BOOL      {output::printProductionRule(34);}
+    ;
+    
+Exp: LPAREN Exp RPAREN  {output::printProductionRule(35);}
+    | Exp PLUS_MINUS Exp    {output::printProductionRule(36);}
+    | Exp MUL_DIV Exp       {output::printProductionRule(36);}
+    | ID                    {output::printProductionRule(37);}
+    | Call              {output::printProductionRule(38);}
+    | NUM               {output::printProductionRule(39);}
+    | NUM B                {output::printProductionRule(40);}
+    | STRING            {output::printProductionRule(41);}
+    | TRUE              {output::printProductionRule(42);}
+    | FALSE             {output::printProductionRule(43);}
+    | NOT Exp           {output::printProductionRule(44);}
+    | Exp AND Exp       {output::printProductionRule(45);}
+    | Exp OR Exp        {output::printProductionRule(46);}
+    | Exp EQUALITY Exp   {output::printProductionRule(47);}
+    | Exp RELATION Exp       {output::printProductionRule(47);}
+    | LPAREN Type RPAREN Exp    {output::printProductionRule(48);}
+    ;
+
+%%
+
+void yyerror(const char*) {
+    output::errorSyn(yylineno);
+    exit(0);
+}
+
+int main(){
+    return yyparse();
+}
