@@ -4,11 +4,43 @@
 
 class Node {
 public:
-    std::string lexeme;
+    std::string name;
 
-    Node(const std::string s= ""): lexeme(s) {}
-    Node(const Node& node) : lexeme(node.lexeme) {}
+    Node(const std::string s= ""): name(s) {}
+    Node(const Node& node) : name(node.name) {}
     virtual ~Node()
+};
+
+class Type : public Node {
+    Type(Node* t) : Node(t) {}
+};
+
+class Exp: public Node {
+public:
+    std::string type;
+    bool is_var;
+
+};
+
+class ExpList : public Node {
+public:
+    std::vector<Exp*> expressions;
+};
+
+class Call : public Node {
+public:
+    std::string type;
+
+};
+
+class Statement : public Node {
+public:
+
+};
+
+class Statements : public Node {
+public:
+
 };
 
 class Program : public Node{
@@ -47,8 +79,7 @@ public:
 
 class FormalsList : public Node{
     std::vector<FormalDecl> param_list;
-
-    FormalsList(FormalDecl dec, FormalsList list)
+    FormalsList(FormalDecl* dec, FormalsList* list)
 };
 
 class Formals: public Node{
