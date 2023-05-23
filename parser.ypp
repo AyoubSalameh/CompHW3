@@ -48,31 +48,31 @@
 %nonassoc ELSE
 
 %%
-Program: Funcs     {output::printProductionRule(1);}
+Program: Funcs                                                                  {output::printProductionRule(1);}
 
-Funcs: /*epsilon*/     {output::printProductionRule(2);}
-     | FuncDecl Funcs   {output::printProductionRule(3);}
+Funcs: /*epsilon*/                                                              {output::printProductionRule(2);}
+     | FuncDecl Funcs                                                           {output::printProductionRule(3);}
      ;
 
-FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE   {output::printProductionRule(4);}
+FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE    {output::printProductionRule(4);}
 
-OverRide: /*epsilon*/   {output::printProductionRule(5);}
-        | OVERRIDE  {output::printProductionRule(6);}
+OverRide: /*epsilon*/                                                           {$$ = new OverRide();}
+        | OVERRIDE                                                              {$$ = new OverRude(true);}
         ;
 
-RetType: Type   {output::printProductionRule(7);}
-       | VOID   {output::printProductionRule(8);}
+RetType: Type                                                                   {$$ = new RetType(dynamic_cast<Type*>($1)->type);}
+       | VOID                                                                   {$$ = new RetType("void");}
        ;
 
-Formals: /*epsilon*/    {output::printProductionRule(9);}
-       | FormalsList    {output::printProductionRule(10);}
+Formals: /*epsilon*/                                                            {$$ = new Formals();}
+           | FormalsList                                                        {$$ = new Formals(dynamic_cast<FormalsList*>($1));}
        ;
 
-FormalsList: FormalDecl     {output::printProductionRule(11);}
-           | FormalDecl COMMA FormalsList   {output::printProductionRule(12);}
+FormalsList: FormalDecl                                                         {$$ = new FormalsList(dynamic_cast<FormalDecl*>($1));}
+           | FormalDecl COMMA FormalsList                                       {$$ = new FormalsList(dynamic_cast<FormalDecl*>($1), dynamic_cast<FormalsList*>($3));}
            ;
 
-FormalDecl: Type ID    {output::printProductionRule(13);}
+FormalDecl: Type ID                                                             {$$ = new FormalDecl(dynamic_cast<Type*>($1), $2);}
 
 Statements: Statement  {output::printProductionRule(14);}
           | Statements Statement    {output::printProductionRule(15);}
@@ -100,12 +100,12 @@ ExpList: Exp       {output::printProductionRule(30);}
        | Exp COMMA ExpList      {output::printProductionRule(31);}
        ;
        
-Type: INT       {output::printProductionRule(32);}
-    | BYTE      {output::printProductionRule(33);}
-    | BOOL      {output::printProductionRule(34);}
+Type: INT                                                                       {$$ = new Type("int");}
+    | BYTE                                                                      {$$ = new Type("byte");}
+    | BOOL                                                                      {$$ = new Type("bool");}
     ;
     
-Exp: LPAREN Exp RPAREN  {output::printProductionRule(35);}
+Exp: LPAREN Exp RPAREN                                                          {$$ = new Exp(dynamic_cast<Exp*>($2));}
     | Exp PLUS_MINUS Exp    {output::printProductionRule(36);}
     | Exp MUL_DIV Exp       {output::printProductionRule(36);}
     | ID                    {output::printProductionRule(37);}
