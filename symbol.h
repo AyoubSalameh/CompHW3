@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 ///********************* SYMBOL TABLE ENTRY ********************************///
 class symbol_table_entry {
 public:
@@ -37,9 +36,9 @@ public:
     symbol_table_scope(bool loop, string ret): is_loop(loop), func_ret_type(ret) {}
     ~symbol_table_scope();      //add print scope in implementation
 
-    bool exists(const symbol_table_entry& entry);
-    void insert(symbol_table_entry& entry);
-    symbol_table_entry* get_symbol_entry(const string& symbol_name); ///this is mainly to check main
+    bool exists_in_scope(const symbol_table_entry& entry);
+    void insert_to_scope(symbol_table_entry& entry);
+    //symbol_table_entry* get_symbol_entry(const string& symbol_name); ///this is mainly to check main
     void print_scope(); //end scope, and calls helper function
     //symbol_table_entry* getSymbol()
 };
@@ -58,10 +57,10 @@ public:
     void close_scope();
     void insert_symbol(const string& n, string t, bool func = false, bool override = false,
                        vector<string>& p = vector<string>());
-    bool symbol_exists(const string& name);
-
+    bool symbol_exists(const symbol_table_entry& entry);
 
 };
+
 
 
 
