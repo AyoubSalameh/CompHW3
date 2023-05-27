@@ -64,6 +64,8 @@ void symbol_table_scope::print_scope() {
     }
 }
 
+
+
 ///********************* TABLE STACK ********************************///
 bool table_stack::symbol_exists(const symbol_table_entry& entry) {
     for(auto it = tables_stack.begin(); it != tables_stack.end(); it++) {

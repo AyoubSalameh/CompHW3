@@ -41,8 +41,10 @@ public:
     //symbol_table_entry* get_symbol_entry(const string& symbol_name); ///this is mainly to check main
     void print_scope(); //end scope, and calls helper function
     //symbol_table_entry* getSymbol()
-};
 
+    ///added
+    bool symbol_declared_in_scope(const string& n);
+};
 
 ///********************* TABLE STACK ********************************///
 class table_stack {
@@ -58,6 +60,9 @@ public:
     void insert_symbol(const string& n, string t, bool func = false, bool override = false,
                        vector<string>& p = vector<string>());
     bool symbol_exists(const symbol_table_entry& entry);
+
+    ///added need to check if func: if paramters are the same
+    bool symbol_declared(const string& n);
 
 };
 
