@@ -2,8 +2,8 @@
 #define HW3_OUTPUT_CPP_PARSER_H
 #include <string>
 #include <vector>
-#include "hw3_output.hpp"
 #include "symbol.h"
+#include "hw3_output.hpp"
 
 class Node;
 class Statements;
@@ -24,7 +24,9 @@ class Formals;
 class FuncDecl;
 
 
+#define YYSTYPE Node*
 
+extern char* yytext;
 
 class Node {
 public:
@@ -32,7 +34,7 @@ public:
 
     Node(const std::string s= ""): name(s) {}
     Node(const Node* node) : name(node->name) {}
-    virtual ~Node();
+    virtual ~Node(){}
 };
 
 class Type : public Node {
@@ -181,7 +183,6 @@ public:
 };
 
 
-#define YYSTYPE Node*
 
 
 

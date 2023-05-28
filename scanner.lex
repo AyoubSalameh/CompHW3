@@ -1,9 +1,9 @@
 %{
 /* Declaration section*/
 #include <stdio.h>
+#include "parser.h"
 #include "hw3_output.hpp"
 #include "parser.tab.hpp"
-#include "parser.h"
 %}
 
 %option yylineno

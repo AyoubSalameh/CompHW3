@@ -1,12 +1,17 @@
 %{
     #include <iostream>
+    #include "parser.h"
     #include "hw3_output.hpp"
     using namespace std;
     int yylex();
+    extern char* yytext;
     extern int yylineno;
     extern table_stack table;
     void yyerror(const char*);
 %}
+
+
+
 
 %nonassoc VOID
 %nonassoc INT
@@ -49,16 +54,16 @@
 %nonassoc ELSE
 
 %%
-Program: Funcs                                                                  {output::printProductionRule(1);}
-
-Funcs: /*epsilon*/                                                              {output::printProductionRule(2);}
-     | FuncDecl Funcs                                                           {output::printProductionRule(3);}
+Program: Funcs                                                                  {/*output::printProductionRule(1);*/}
+        ;
+Funcs: /*epsilon*/                                                              {/*output::printProductionRule(2);*/}
+     | FuncDecl Funcs                                                           {/*output::printProductionRule(3);*/}
      ;
 
-FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE    {output::printProductionRule(4);}
-
+FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE    {/*output::printProductionRule(4);*/}
+        ;
 OverRide: /*epsilon*/                                                           {$$ = new OverRide();}
-        | OVERRIDE                                                              {$$ = new OverRude(true);}
+        | OVERRIDE                                                              {$$ = new OverRide(true);}
         ;
 
 RetType: Type                                                                   {$$ = new RetType(dynamic_cast<Type*>($1)->type);}
@@ -74,7 +79,7 @@ FormalsList: FormalDecl                                                         
            ;
 
 FormalDecl: Type ID                                                             {$$ = new FormalDecl(dynamic_cast<Type*>($1), $2);}
-
+            ;
 Statements: Statement                                                           {$$ = new Statements(dynamic_cast<Statement*>($1));}
           | Statements Statement                                                {$$ = new Statements(dynamic_cast<Statements*>($1), dynamic_cast<Statement*>($2));}
           ;
@@ -97,8 +102,8 @@ Statement: LBRACE {table.open_scope();} Statements RBRACE                       
           | CONTINUE SC                                                         {$$ = new Statement($1);}
           ;
           
-Call: ID LPAREN ExpList RPAREN      {output::printProductionRule(28);}
-    | ID LPAREN RPAREN          {output::printProductionRule(29);}
+Call: ID LPAREN ExpList RPAREN      {/*output::printProductionRule(28)*/;}
+    | ID LPAREN RPAREN          {/*output::printProductionRule(29)*/;}
     ;
     
 ExpList: Exp                                                                    {$$ = new ExpList(dynamic_cast<Exp*>($1));}
