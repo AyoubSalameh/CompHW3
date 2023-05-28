@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 extern table_stack table;
+extern int yylineno;
 using namespace std;
 
 
