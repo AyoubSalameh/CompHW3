@@ -2,3 +2,5 @@ hw3-tests.zip/
 hw3-tests/
 *.in
 *.out
+lex.yy.c
+parser.tab.*
