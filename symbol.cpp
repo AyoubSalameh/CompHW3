@@ -6,7 +6,7 @@ extern int yylineno;
 
 
 ///HELPER
-static bool are_vectors_equal(vector<string>& a, vector<string>& b) {
+static bool are_vectors_equal(const vector<string>& a,const  vector<string>& b) {
     if(a.size() != b.size()) {
         return false;
     }
@@ -56,7 +56,7 @@ void symbol_table_scope::insert_to_scope(symbol_table_entry &entry) {
 void symbol_table_scope::print_scope() {
     for(auto& entry : this->entries){
         if(entry.is_func) {
-            output::printID(entry.name, 0, output::makeFunctionType(entry.type, entry.params))
+            output::printID(entry.name, 0, output::makeFunctionType(entry.type, entry.params));
         }
         else {
             output::printID(entry.name, entry.offset, entry.type);
@@ -98,7 +98,7 @@ bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entr
         }
         if(counter > 1) {
             output::errorAmbiguousCall(yylineno, entry.name);
-            exit(0)
+            exit(0);
         }
         if(counter == 1)
             return true;
@@ -113,8 +113,8 @@ bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entr
 ///this func is only for variables (id)
 symbol_table_entry* symbol_table_scope::get_variable_in_scope(const string &name) {
     for(auto it = entries.begin(); it != entries.end(); it++) {
-        if(entry.name == it->name && it->is_func == false)
-            return it;
+        if(name == it->name && it->is_func == false)
+            return &(*it);
     }
     return nullptr;
 }
@@ -131,7 +131,7 @@ bool table_stack::symbol_exists(const symbol_table_entry& entry) {
     return true;
 }
 
-void table_stack::insert_symbol(const string &n, string t, bool func, bool override, vector <string> &p) {
+void table_stack::insert_symbol(const string &n, string t, bool func, bool override, vector <string> p) {
     //insert to table_stack
     if(n == "main" && override == true) {
         output::errorMainOverride(yylineno);
@@ -169,7 +169,7 @@ void table_stack::close_scope() {
 ///in inserting, we made sure that a varibale appears only once, so its enough for use to check if a variable exists in one scope
 ///havent used for variable. might use for functions
 bool table_stack::symbol_declared(const symbol_table_entry &entry) {
-    for(auto it = this->tables_stack.begin(); it++) {
+    for(auto it = this->tables_stack.begin(); it < this->tables_stack.end(); it++) {
         bool answer = it->symbol_declared_in_scope(entry);
         if(answer == true)
             return true;
@@ -185,12 +185,12 @@ bool table_stack::symbol_declared(const symbol_table_entry &entry) {
 }
 
 symbol_table_entry* table_stack::get_variable(const string &name) {
-    for(auto it = this->tables_stack.begin(); it++) {
+    for(auto it = this->tables_stack.begin(); it<this->tables_stack.end();  it++) {
         symbol_table_entry *returned = it->get_variable_in_scope(name);
         if (returned != nullptr) {
             return returned;
         }
     }
-    output::errorUndef(yylineno, entry.name);
+    output::errorUndef(yylineno, name);
     exit(0);
 }

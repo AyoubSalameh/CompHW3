@@ -19,7 +19,7 @@ public:
 
 public:
     symbol_table_entry(const string& n, string t, int o, bool func = false, bool override = false,
-                       vector<string>& p = vector<string>()) :
+                       vector<string> p = vector<string>()) :
                        name(n), type(t), offset(o), is_func(func), is_override(override), params(p)
     {}
     ~symbol_table_entry() = default;
@@ -59,7 +59,7 @@ public:
     void open_scope(bool is_loop = false, string ret_type = ""); //open a new empty scope
     void close_scope();
     void insert_symbol(const string& n, string t, bool func = false, bool override = false,
-                       vector<string>& p = vector<string>());
+                       vector<string> p = vector<string>());
     bool symbol_exists(const symbol_table_entry& entry);    ///used only in insert
 
     ///added need to check if func: if paramters are the same
