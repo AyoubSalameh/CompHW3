@@ -1,22 +1,39 @@
 #include "parser.h"
 #include <stdio.h>
 
+extern table_stack table;
 using namespace std;
+
+
+static bool type_compatible(const string& right, const string& left) {
+    if (right != left) {
+        if (!(left == "int" && right == "byte")) {
+            return false;
+        }
+    }
+    return true;
+}
+
+///******************************************FUNC DECL***************************************************
 
 FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
 
 }
 
-FormalsList::FormalsList(FormalDecl* dec, FormalsList* list) {
+///******************************************FORMALS LIST***************************************************
+
+FormalsList::FormalsList(FormalDecl* dec, FormalsList* list) : Node(dec->name){
     this->param_list.push_back(*dec);
     for( auto& item : list->param_list){
         this->param_list.push_back(item);
     }
 }
 
-FormalsList::FormalsList(FormalDecl *dec) {
+FormalsList::FormalsList(FormalDecl *dec) : Node(dec->name) {
     this->param_list.push_back(*dec);
 }
+
+///******************************************EXP***************************************************
 
 Exp::Exp(Exp *e1, Node *op, Exp *e2) : Node(op) {
     string type1 = e1->type;
@@ -83,4 +100,87 @@ Exp::Exp(Type *t, Exp *e) : Node(t->type) {
         exit(0);
     }
     this->type = t->type;
+}
+
+Exp::Exp(Node *id) : Node(id) {
+    symbol_table_entry* entry = table.get_variable(id->name);
+    this->type = entry->type;
+}
+
+Exp::Exp(Call *c) : Node(c->name), type(c->type) {}
+
+///******************************************EXP LIST*******************************************
+
+ExpList::ExpList(Exp *e) : Node(e->name) {
+    this->expressions.push_back(*e);
+}
+
+ExpList::ExpList(Exp *e, ExpList *list) : Node(e->name) {
+    this->expressions.push_back(*e);
+    for( auto& item : list->expressions){
+        this->expressions.push_back(item);
+    }
+}
+
+///****************************************** STATEMENT *******************************************
+
+Statement::Statement(Type *t, Node *id) {
+    table.insert_symbol(id->name, t->type);
+}
+
+Statement::Statement(Type *t, Node *id, Exp *e) {
+    if(!type_compatible(t->type, e->type)) {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+    table.insert_symbol(id->name, t->type);
+}
+
+Statement::Statement(Node *id, Exp *e) {
+    symbol_table_entry* entry = table.get_variable(id->name);
+    //if we get here, symbol exists, otherwise we wouldve thrown error from the function
+
+    if(!type_compatible(entry->type, e->type)) {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+}
+
+Statement::Statement(Node* n) {
+    if(n->name == "return") {
+        string ret_type = table.tables_stack.back().func_ret_type;
+        if (ret_type != "void") {
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
+    }
+    if(n->name == "break") {
+        if(table.tables_stack.back().is_loop == false) {
+            output::errorUnexpectedBreak(yylineno);
+            exit(0);
+        }
+    }
+    if(n->name == "continue") {
+        if(table.tables_stack.back().is_loop == false) {
+            output::errorUnexpectedContinue(yylineno);
+            exit(0);
+        }
+    }
+
+}
+
+Statement::Statement(Node* ret, Exp* e) {
+    string ret_type = table.tables_stack.back().func_ret_type;
+    if(!(type_compatible(ret_type, e->type))) {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+}
+
+Statement::Statement(Exp* e) {
+    if(e->type != "bool") {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
+
 }

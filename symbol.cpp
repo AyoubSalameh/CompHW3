@@ -110,6 +110,17 @@ bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entr
     return false;
 }
 
+///this func is only for variables (id)
+symbol_table_entry* symbol_table_scope::get_variable_in_scope(const string &name) {
+    for(auto it = entries.begin(); it != entries.end(); it++) {
+        if(entry.name == it->name && it->is_func == false)
+            return it;
+    }
+    return nullptr;
+}
+
+
+
 
 
 ///********************* TABLE STACK ********************************///
@@ -156,6 +167,7 @@ void table_stack::close_scope() {
 }
 
 ///in inserting, we made sure that a varibale appears only once, so its enough for use to check if a variable exists in one scope
+///havent used for variable. might use for functions
 bool table_stack::symbol_declared(const symbol_table_entry &entry) {
     for(auto it = this->tables_stack.begin(); it++) {
         bool answer = it->symbol_declared_in_scope(entry);
@@ -170,4 +182,15 @@ bool table_stack::symbol_declared(const symbol_table_entry &entry) {
         output::errorUndefFunc(yylineno, entry.name);
     }
     return false;
+}
+
+symbol_table_entry* table_stack::get_variable(const string &name) {
+    for(auto it = this->tables_stack.begin(); it++) {
+        symbol_table_entry *returned = it->get_variable_in_scope(name);
+        if (returned != nullptr) {
+            return returned;
+        }
+    }
+    output::errorUndef(yylineno, entry.name);
+    exit(0);
 }

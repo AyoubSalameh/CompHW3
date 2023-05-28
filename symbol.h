@@ -44,6 +44,7 @@ public:
 
     ///added
     bool symbol_declared_in_scope(const symbol_table_entry& entry);
+    symbol_table_entry* get_variable_in_scope(const string& name);
 };
 
 ///********************* TABLE STACK ********************************///
@@ -55,14 +56,15 @@ public:
     table_stack(); //adding print and printi and global stack scope\scope 0
     ~table_stack() = default;
 
-    void open_scope(bool is_loop = false, string ret_type = ""); //open a new empty scope upon
+    void open_scope(bool is_loop = false, string ret_type = ""); //open a new empty scope
     void close_scope();
     void insert_symbol(const string& n, string t, bool func = false, bool override = false,
                        vector<string>& p = vector<string>());
     bool symbol_exists(const symbol_table_entry& entry);    ///used only in insert
 
     ///added need to check if func: if paramters are the same
-    bool symbol_declared(const symbol_table_entry& entry);
+    bool symbol_declared(const symbol_table_entry& entry);  ///havent used yet
+    symbol_table_entry* get_variable(const string& name);
 
 };
 

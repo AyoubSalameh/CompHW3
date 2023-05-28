@@ -4,6 +4,7 @@
     using namespace std;
     int yylex();
     extern int yylineno;
+    extern table_stack table;
     void yyerror(const char*);
 %}
 
@@ -74,30 +75,34 @@ FormalsList: FormalDecl                                                         
 
 FormalDecl: Type ID                                                             {$$ = new FormalDecl(dynamic_cast<Type*>($1), $2);}
 
-Statements: Statement  {output::printProductionRule(14);}
-          | Statements Statement    {output::printProductionRule(15);}
+Statements: Statement                                                           {$$ = new Statements(dynamic_cast<Statement*>($1));}
+          | Statements Statement                                                {$$ = new Statements(dynamic_cast<Statements*>($1), dynamic_cast<Statement*>($2));}
           ;
           
-Statement: LBRACE Statements RBRACE    {output::printProductionRule(16);}
-          | Type ID SC                  {output::printProductionRule(17);}
-          | Type ID ASSIGN Exp SC       {output::printProductionRule(18);}
-          | ID ASSIGN Exp SC            {output::printProductionRule(19);}
-          | Call SC                     {output::printProductionRule(20);}
-          | RETURN SC                   {output::printProductionRule(21);}
-          | RETURN Exp SC               {output::printProductionRule(22);}
-          | IF LPAREN Exp RPAREN Statement  {output::printProductionRule(23);}
-          | IF LPAREN Exp RPAREN Statement ELSE Statement       {output::printProductionRule(24);}
-          | WHILE LPAREN Exp RPAREN Statement       {output::printProductionRule(25);}
-          | BREAK SC                    {output::printProductionRule(26);}
-          | CONTINUE SC                 {output::printProductionRule(27);}
+Statement: LBRACE {table.open_scope();} Statements RBRACE                       {$$ = new Statement();
+                                                                                 table.close_scope();}
+          | Type ID SC                                                          {$$ = new Statement(dynamic_cast<Type*>($1), $2);}
+          | Type ID ASSIGN Exp SC                                               {$$ = new Statement(dynamic_cast<Type*>($1), $2, dynamic_cast<Exp*>($4));}
+          | ID ASSIGN Exp SC                                                    {$$ = new Statement($1, dynamic_cast<Exp*>($3));}
+          | Call SC                                                             {$$ = new Statement(dynamic_cast<Call*>($1));}
+          | RETURN SC                                                           {$$ = new Statement($1);}
+          | RETURN Exp SC                                                       {$$ = new Statement($1, dynamic_cast<Exp*>($2));}
+          | IF LPAREN Exp RPAREN {table.open_scope();} Statement                {$$ = new Statement(dynamic_cast<Exp*>($3));
+                                                                                 table.close_scope();}
+          | IF LPAREN Exp RPAREN {table.open_scope();} Statement {table.close_scope();} ELSE  {table.open_scope();} Statement      {$$ = new Statement(dynamic_cast<Exp*>($3));
+                                                                                                                                    table.close_scope();}
+          | WHILE LPAREN Exp RPAREN {table.open_scope(true);} Statement         {$$ = new Statement(dynamic_cast<Exp*>($3));
+                                                                                 table.close_scope();}
+          | BREAK SC                                                            {$$ = new Statement($1);}
+          | CONTINUE SC                                                         {$$ = new Statement($1);}
           ;
           
 Call: ID LPAREN ExpList RPAREN      {output::printProductionRule(28);}
     | ID LPAREN RPAREN          {output::printProductionRule(29);}
     ;
     
-ExpList: Exp       {output::printProductionRule(30);}
-       | Exp COMMA ExpList      {output::printProductionRule(31);}
+ExpList: Exp                                                                    {$$ = new ExpList(dynamic_cast<Exp*>($1);}
+       | Exp COMMA ExpList                                                      {$$ = new ExpList(dynamic_cast<Exp*>($1), dynamic_cast<ExpList*>($3));}
        ;
        
 Type: INT                                                                       {$$ = new Type("int");}
@@ -108,8 +113,8 @@ Type: INT                                                                       
 Exp: LPAREN Exp RPAREN                                                          {$$ = new Exp(dynamic_cast<Exp*>($2));}
     | Exp PLUS_MINUS Exp                                                        {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
     | Exp MUL_DIV Exp                                                           {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
-    | ID                    {output::printProductionRule(37);}
-    | Call              {output::printProductionRule(38);}
+    | ID                                                                        {$$ = new Exp($1);}
+    | Call                                                                      {$$ = new Exp(dynamic_cast<Call*>($1));}
     | NUM                                                                       {$$ = new Exp($1, "int");}
     | NUM B                                                                     {$$ = new Exp($1, $2);}
     | STRING                                                                    {$$ = new Exp($1, "string");}

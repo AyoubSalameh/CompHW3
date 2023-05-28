@@ -3,6 +3,10 @@
 #include <string>
 #include <vector>
 #include "hw3_output.hpp"
+#include "symbol.h"
+
+class Statements;
+class Statement;
 
 class Node {
 public:
@@ -17,6 +21,11 @@ class Type : public Node {
 public:
     std::string type;
     Type(std::string t) : type(t) {}
+};
+
+class Call : public Node {
+public:
+    std::string type;
 };
 
 class Exp: public Node {
@@ -41,26 +50,61 @@ public:
 
     //exp -> (type) exp
     Exp(Type* t, Exp* e);
+
+    //exp -> id
+    Exp(Node* id);
+
+    //exp -> call
+    Exp(Call* c);
 };
 
 class ExpList : public Node {
 public:
-    std::vector<Exp*> expressions;
+    std::vector<Exp> expressions;
+
+    //explist -> exp
+    ExpList(Exp* e);
+
+    //explist -> exp , explist
+    ExpList(Exp* e, ExpList* list);
 };
 
-class Call : public Node {
-public:
-    std::string type;
-
-};
 
 class Statement : public Node {
 public:
+
+    //statement -> { statements }
+    Statement();
+
+    //statement -> type ID ;
+    Statement(Type* t, Node* id);
+
+    //statement -> type ID = Exp ;
+    Statement(Type* t, Node* id, Exp* e);
+
+    //statement -> ID = Exp ;
+    Statement(Node* id, Exp* e);
+
+    //statement -> call ;
+    Statement(Call* c);
+
+    //statement -> return ;
+    //statement -> break ;
+    //statement -> continue ;
+    Statement(Node* n);
+
+    //statement -> return exp;
+    Statement(Node* ret, Exp* e);
+
+    //statement -> if ( exp ) statement
+    Statement(Exp* e);
 
 };
 
 class Statements : public Node {
 public:
+    Statements(Statement* st);
+    Statements(Statements* sts, Statement* st);
 
 };
 
