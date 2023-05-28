@@ -5,16 +5,34 @@
 #include "hw3_output.hpp"
 #include "symbol.h"
 
+class Node;
 class Statements;
 class Statement;
+class Type;
+class Call;
+class Exp;
+class ExpList;
+class Statement;
+class Statements;
+class Program;
+class Funcs;
+class OverRide;
+class RetType;
+class FormalDecl;
+class FormalsList;
+class Formals;
+class FuncDecl;
+
+
+
 
 class Node {
 public:
     std::string name;
 
     Node(const std::string s= ""): name(s) {}
-    Node(const Node* node) : name(node.name) {}
-    virtual ~Node()
+    Node(const Node* node) : name(node->name) {}
+    virtual ~Node();
 };
 
 class Type : public Node {
@@ -143,16 +161,18 @@ public:
 };
 
 class FormalsList : public Node{
+public:
     std::vector<FormalDecl> param_list;
     FormalsList(FormalDecl* dec, FormalsList* list);
     FormalsList(FormalDecl* dec);
 };
 
 class Formals: public Node{
+public:
     std::vector<FormalDecl> param_list;
     Formals(FormalsList* fl) : param_list(fl->param_list) {}
     Formals() {}
-F
+
 };
 
 class FuncDecl : public Node {
