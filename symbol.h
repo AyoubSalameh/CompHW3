@@ -43,7 +43,7 @@ public:
     //symbol_table_entry* getSymbol()
 
     ///added
-    bool symbol_declared_in_scope(const string& n);
+    bool symbol_declared_in_scope(const symbol_table_entry& entry);
 };
 
 ///********************* TABLE STACK ********************************///
@@ -59,10 +59,10 @@ public:
     void close_scope();
     void insert_symbol(const string& n, string t, bool func = false, bool override = false,
                        vector<string>& p = vector<string>());
-    bool symbol_exists(const symbol_table_entry& entry);
+    bool symbol_exists(const symbol_table_entry& entry);    ///used only in insert
 
     ///added need to check if func: if paramters are the same
-    bool symbol_declared(const string& n);
+    bool symbol_declared(const symbol_table_entry& entry);
 
 };
 

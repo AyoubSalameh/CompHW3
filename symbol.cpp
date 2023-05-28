@@ -64,6 +64,52 @@ void symbol_table_scope::print_scope() {
     }
 }
 
+static bool are_params_equal(const vector<string>& called, const vector<string>& declared) {
+    if(called.size() != declared.size())
+        return false;
+
+    for(int i = 0; i < called.size() ; i++){
+        if(called[i] != declared[i]){
+            if(!(called[i] == "byte" && declared[i] == "int")) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entry) {
+    if(entry.is_func == false) {
+        for(auto it = entries.begin(); it != entries.end(); it++) {
+            if(entry.name == it->name && it->is_func == false)
+                return true;
+        }
+    }
+    bool found_name = false;
+    int counter = 0;
+    if(entry.is_func == true) {
+        for(auto it = entries.begin(); it != entries.end(); it++) {
+                if(entry.name == it->name) {
+                    found_name = true;
+                    bool answer = are_params_equal(entry.params, it->params);
+                    if(answer == true)
+                        counter++;
+                }
+        }
+        if(counter > 1) {
+            output::errorAmbiguousCall(yylineno, entry.name);
+            exit(0)
+        }
+        if(counter == 1)
+            return true;
+        if(counter == 0 && found_name == true){
+            output::errorPrototypeMismatch(yylineno, entry.name);
+            exit(0);
+        }
+    }
+    return false;
+}
+
 
 
 ///********************* TABLE STACK ********************************///
@@ -76,6 +122,10 @@ bool table_stack::symbol_exists(const symbol_table_entry& entry) {
 
 void table_stack::insert_symbol(const string &n, string t, bool func, bool override, vector <string> &p) {
     //insert to table_stack
+    if(n == "main" && override == true) {
+        output::errorMainOverride(yylineno);
+        exit(0);
+    }
     int insert_offset = func ? 0 : offsets_stack.top();
     symbol_table_entry entry(n, t, insert_offset, func, override, p);
 
@@ -103,4 +153,21 @@ void table_stack::close_scope() {
     to_close.print_scope();
     tables_stack.pop_back();
     offsets_stack.pop();
+}
+
+///in inserting, we made sure that a varibale appears only once, so its enough for use to check if a variable exists in one scope
+bool table_stack::symbol_declared(const symbol_table_entry &entry) {
+    for(auto it = this->tables_stack.begin(); it++) {
+        bool answer = it->symbol_declared_in_scope(entry);
+        if(answer == true)
+            return true;
+    }
+    if(entry.is_func == false) {
+        output::errorUndef(yylineno, entry.name);
+        exit(0);
+    }
+    if(entry.is_func) {
+        output::errorUndefFunc(yylineno, entry.name);
+    }
+    return false;
 }

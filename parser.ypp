@@ -106,21 +106,21 @@ Type: INT                                                                       
     ;
     
 Exp: LPAREN Exp RPAREN                                                          {$$ = new Exp(dynamic_cast<Exp*>($2));}
-    | Exp PLUS_MINUS Exp    {output::printProductionRule(36);}
-    | Exp MUL_DIV Exp       {output::printProductionRule(36);}
+    | Exp PLUS_MINUS Exp                                                        {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
+    | Exp MUL_DIV Exp                                                           {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
     | ID                    {output::printProductionRule(37);}
     | Call              {output::printProductionRule(38);}
-    | NUM               {output::printProductionRule(39);}
-    | NUM B                {output::printProductionRule(40);}
-    | STRING            {output::printProductionRule(41);}
-    | TRUE              {output::printProductionRule(42);}
-    | FALSE             {output::printProductionRule(43);}
-    | NOT Exp           {output::printProductionRule(44);}
-    | Exp AND Exp       {output::printProductionRule(45);}
-    | Exp OR Exp        {output::printProductionRule(46);}
-    | Exp EQUALITY Exp   {output::printProductionRule(47);}
-    | Exp RELATION Exp       {output::printProductionRule(47);}
-    | LPAREN Type RPAREN Exp    {output::printProductionRule(48);}
+    | NUM                                                                       {$$ = new Exp($1, "int");}
+    | NUM B                                                                     {$$ = new Exp($1, $2);}
+    | STRING                                                                    {$$ = new Exp($1, "string");}
+    | TRUE                                                                      {$$ = new Exp($1, "bool");}
+    | FALSE                                                                     {$$ = new Exp($1, "bool");}
+    | NOT Exp                                                                   {$$ = new Exp($1, dynamic_cast<Exp*>($2));}
+    | Exp AND Exp                                                               {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
+    | Exp OR Exp                                                                {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
+    | Exp EQUALITY Exp                                                          {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
+    | Exp RELATION Exp                                                          {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
+    | LPAREN Type RPAREN Exp                                                    {$$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4));}
     ;
 
 %%

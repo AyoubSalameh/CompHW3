@@ -2,6 +2,7 @@
 #define HW3_OUTPUT_CPP_PARSER_H
 #include <string>
 #include <vector>
+#include "hw3_output.hpp"
 
 class Node {
 public:
@@ -23,7 +24,23 @@ public:
     std::string type;
     //bool is_var;
 
+    //exp -> (exp)
     Exp(Exp* e) : type(e->type), Node(e) {};
+
+    //exp -> exp binop/relop/and/or exp
+    Exp(Exp* e1, Node* op, Exp* e2);
+
+    //exp -> not exp
+    Exp(Node* op, Exp* e);
+
+    //exp -> num b
+    Exp(Node* n, Node* b);
+
+    //exp -> num/string/true/false
+    Exp(Node* n, std::string type);
+
+    //exp -> (type) exp
+    Exp(Type* t, Exp* e);
 };
 
 class ExpList : public Node {
