@@ -91,10 +91,10 @@ Statement: LBRACE {table.open_scope();} Statements RBRACE                       
           | ID ASSIGN Exp SC                                                    {$$ = new Statement($1, dynamic_cast<Exp*>($3));}
           | Call SC                                                             {$$ = new Statement(dynamic_cast<Call*>($1));}
           | RETURN SC                                                           {$$ = new Statement($1);}
-          | RETURN Exp SC                                                       {$$ = new Statement($1, dynamic_cast<Exp*>($2));}
-          | IF LPAREN Exp RPAREN {table.open_scope();} Statement                {$$ = new Statement(dynamic_cast<Exp*>($3));
+          | RETURN Exp SC                                                       {$$ = new Statement(dynamic_cast<Exp*>($2), $1);}
+          | IF LPAREN Exp RPAREN M Statement                                    {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                  table.close_scope();}
-          | IF LPAREN Exp RPAREN {table.open_scope();} Statement {table.close_scope();} ELSE  {table.open_scope();} Statement      {$$ = new Statement(dynamic_cast<Exp*>($3));
+          | IF LPAREN Exp RPAREN M Statement ELSE  {table.close_scope(); table.open_scope();} Statement      {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                                                                     table.close_scope();}
           | WHILE LPAREN Exp RPAREN {table.open_scope(true);} Statement         {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                  table.close_scope();}
@@ -132,6 +132,8 @@ Exp: LPAREN Exp RPAREN                                                          
     | Exp RELATION Exp                                                          {$$ = new Exp(dynamic_cast<Exp*>($1), $2, dynamic_cast<Exp*>($3));}
     | LPAREN Type RPAREN Exp                                                    {$$ = new Exp(dynamic_cast<Type*>($2), dynamic_cast<Exp*>($4));}
     ;
+
+M:                                                                              {table.open_scope();}
 
 %%
 

@@ -114,7 +114,7 @@ public:
     Statement(Node* n);
 
     //statement -> return exp;
-    Statement(Node* ret, Exp* e);
+    Statement(Exp* e, Node* ret);
 
     //statement -> if ( exp ) statement
     Statement(Exp* e);

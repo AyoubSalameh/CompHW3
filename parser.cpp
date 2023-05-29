@@ -170,7 +170,7 @@ Statement::Statement(Node* n) {
 
 }
 
-Statement::Statement(Node* ret, Exp* e) {
+Statement::Statement(Exp* e, Node* ret) {
     string ret_type = table.tables_stack.back().func_ret_type;
     if(!(type_compatible(ret_type, e->type))) {
         output::errorMismatch(yylineno);
