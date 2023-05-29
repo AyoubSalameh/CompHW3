@@ -6,4 +6,6 @@ lex.yy.c
 parser.tab.*
 *.res
 .vscode/
+tests/
+
 
