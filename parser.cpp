@@ -2,6 +2,7 @@
 #include "symbol.h"
 
 #include <stdio.h>
+#include <iostream>
 
 extern table_stack table;
 extern int yylineno;
@@ -9,11 +10,6 @@ using namespace std;
 
 
 
-///******************************************FUNC DECL***************************************************
-
-FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
-
-}
 
 ///******************************************FORMALS LIST***************************************************
 
@@ -102,8 +98,6 @@ Exp::Exp(Node *id) : Node(id) {
     this->type = entry->type;
 }
 
-Exp::Exp(Call *c) : Node(c->name), type(c->type) {}
-
 ///******************************************EXP LIST*******************************************
 
 ExpList::ExpList(Exp *e) : Node(e->name) {
@@ -133,12 +127,16 @@ Statement::Statement(Type *t, Node *id, Exp *e) {
 
 Statement::Statement(Node *id, Exp *e) {
     if(id->name == "return"){
+        //cout << "!!!!!!!!!!!!!!!!!!!!!!!" << endl;
         string ret_type = table.tables_stack.back().func_ret_type;
         if(!(type_compatible(ret_type, e->type))) {
+            cout <<  "ret_type is " << ret_type << " e_type is " << e->type << endl;
             output::errorMismatch(yylineno);
             exit(0);
         }
+    }
     else{
+        //cout << "!!!!!!!!!!! else     !!!!!!!!!!!!" << endl;
         symbol_table_entry* entry = table.get_variable(id->name);
         //if we get here, symbol exists, otherwise we wouldve thrown error from the function
 
@@ -148,7 +146,7 @@ Statement::Statement(Node *id, Exp *e) {
         }
     }
     }  
-}
+
 
 
 Statement::Statement(Node* n) {
@@ -199,14 +197,14 @@ Call::Call(Node *id, ExpList *params)  : Node(id->name) {
 }
 
 
-///****************************************** Call *******************************************
+///******************************************FUNC DECL***************************************************
 FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
     vector<FormalDecl> param_list = params->param_list;
     vector<string> types{};
     vector<string> ids{};
     for(int i = 0; i<param_list.size(); i++) {
         types.push_back(param_list[i].type);
-        types.push_back(param_list[i].name);
+        ids.push_back(param_list[i].name);
     }
     table.insert_symbol(id->name, rt->type, true, override->isOverRide, types);
     table.insert_func_args(types, ids, rt->type);

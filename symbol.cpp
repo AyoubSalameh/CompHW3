@@ -1,12 +1,13 @@
 #include "symbol.h"
 #include "hw3_output.hpp"
+#include "iostream"
 
 extern table_stack table;
 extern int yylineno;
 
 bool type_compatible(const string& right, const string& left){
     if (right != left) {
-        if (!(left == "int" && right == "byte")) {
+        if (!(right == "int" && left == "byte")) {
             return false;
         }
     }
@@ -75,13 +76,20 @@ void symbol_table_scope::insert_to_scope(symbol_table_entry &entry) {
 }
 
 
-void symbol_table_scope::print_scope() {
-    for(auto& entry : this->entries){
-        if(entry.is_func) {
-            output::printID(entry.name, 0, output::makeFunctionType(entry.type, entry.params));
+void symbol_table_scope::print_scope() { //TODO: remove prints
+    
+    ////cout << " in print_scope " << table.tables_stack[0].entries[3].name << endl;
+    ////cout << this->entries.begin()->name << endl;
+
+    for(auto it=(this->entries).begin(); it != (this->entries).end(); it++){
+        ////cout <<  "in for" << endl;
+        if(it->is_func) {
+            ////cout <<  " !!!!!!!!!!!!!  in func  !!!!!!!!!!!!!!!!!!!" << endl;
+            output::printID(it->name, 0, output::makeFunctionType(it->type, it->params));
         }
         else {
-            output::printID(entry.name, entry.offset, entry.type);
+            ////cout <<  " !!!!!!!!!!!!!  in else  !!!!!!!!!!!!!!!!!!!" << endl;
+            output::printID(it->name, it->offset, it->type);
         }
     }
 }
@@ -153,6 +161,15 @@ table_stack::table_stack(){
     this->insert_symbol("printi","void",true,false,{"int"});
 }
 
+void table_stack::final_check() {
+    symbol_table_entry* main_enrty = get_function("main");
+    if(main_enrty->type != "void" || main_enrty->params.size() > 0){
+        output::errorMainMissing();
+        exit(0);
+    }
+    this->close_scope();
+}
+
 bool table_stack::symbol_exists(const symbol_table_entry& entry) {
     for(auto it = tables_stack.begin(); it != tables_stack.end(); it++) {
         it->exists_in_scope(entry);
@@ -162,6 +179,7 @@ bool table_stack::symbol_exists(const symbol_table_entry& entry) {
 
 void table_stack::insert_symbol(const string &n, string t, bool func, bool override, vector <string> p) {
     //insert to table_stack
+    ////cout << "in insert_symbol " << n << " " << t << " " <<  func << endl;  
     if (n == "main" && override == true) {
         output::errorMainOverride(yylineno);
         exit(0);
@@ -172,7 +190,7 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
     this->symbol_exists(entry);
 
     //if we got here, the insertion is legal
-    tables_stack[0].insert_to_scope(entry);
+    tables_stack.back().insert_to_scope(entry);
     /*maybe .back()*/
 
     if (!func) {
@@ -181,11 +199,19 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
     }
 }
 
-void table_stack::insert_func_args(vector <string> types, vector <string> names, string retType) {
+void table_stack::insert_func_args(vector<string> types, vector<string> names, string retType) {
+    //cout << "in insert_func_args " << endl;
+    
     this->open_scope(false, retType);
+
+    //cout << "in insert_func_args, tables_stack size (number of scopes) is " << tables_stack.size() << endl;
     int offset = -1;
     for(int i = 0; i < types.size(); i++) {
+        //cout << "in for !!!!! " << endl;
+        //cout << types[i] << endl;
+        //cout << names[i] << endl;
         symbol_table_entry entry(names[i], types[i], offset);
+        //cout << i << " " << endl;
         this->tables_stack.back().entries.push_back(entry);
         offset--;
     }
@@ -194,12 +220,15 @@ void table_stack::insert_func_args(vector <string> types, vector <string> names,
 
 void table_stack::open_scope(bool is_loop, string ret_type)
 {
+    //cout << "in open_scope " << endl;
     symbol_table_scope new_scope(is_loop, ret_type);
     tables_stack.push_back(new_scope);
     offsets_stack.push(offsets_stack.top());
+    //cout << "in open_scope, tables_stack size (number of scopes) is " <<tables_stack.size() << endl;
 }
 
 void table_stack::close_scope() {
+    ////cout << "in close scope" << endl;
     output::endScope();
     symbol_table_scope to_close = tables_stack.back();
     to_close.print_scope();
@@ -210,7 +239,7 @@ void table_stack::close_scope() {
 ///in inserting, we made sure that a varibale appears only once, so its enough for use to check if a variable exists in one scope
 ///havent used for variable. might use for functions
 bool table_stack::symbol_declared(const symbol_table_entry &entry) {
-    for(auto it = this->tables_stack.begin(); it < this->tables_stack.end(); it++) {
+    for(auto it = this->tables_stack.begin(); it != this->tables_stack.end(); it++) {
         bool answer = it->symbol_declared_in_scope(entry);
         if(answer == true)
             return true;
@@ -226,7 +255,7 @@ bool table_stack::symbol_declared(const symbol_table_entry &entry) {
 }
 
 symbol_table_entry* table_stack::get_variable(const string &name) {
-    for(auto it = this->tables_stack.begin(); it<this->tables_stack.end();  it++) {
+    for(auto it = this->tables_stack.begin(); it != this->tables_stack.end();  it++) {
         symbol_table_entry *returned = it->get_variable_in_scope(name);
         if (returned != nullptr) {
             return returned;
@@ -264,6 +293,10 @@ symbol_table_entry* table_stack::get_function(const string& name, vector<string>
         exit(0);
     }
     /*counter == 0  and found name == false*/
+    if(name == "main"){
+        output::errorMainMissing();
+        exit(0);
+    }
     output::errorUndefFunc(yylineno, name);
     exit(0);    
 }

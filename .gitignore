@@ -4,3 +4,6 @@ hw3-tests/
 *.out
 lex.yy.c
 parser.tab.*
+*.res
+.vscode/
+

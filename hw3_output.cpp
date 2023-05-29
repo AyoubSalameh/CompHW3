@@ -1,15 +1,29 @@
 #include <iostream>
 #include "hw3_output.hpp"
 #include <sstream>
+#include <cstring>
 
 using namespace std;
+
+
+string toUpperCase(const std::string& str) {
+    string result;
+    for (char c : str) {
+        if(c>='a' && c<='z')
+            result += toupper(c);
+        else{
+            result += c;
+        }
+    }
+    return result;
+}
 
 void output::endScope(){
     cout << "---end scope---" << endl;
 }
 
 void output::printID(const string& id, int offset, const string& type) {
-    cout << id << " " << type <<  " " << offset <<  endl;
+    cout << id << " " << toUpperCase(type) <<  " " << offset <<  endl;
 }
 
 string typeListToString(const std::vector<string>& argTypes) {
@@ -21,7 +35,7 @@ string typeListToString(const std::vector<string>& argTypes) {
             res << ",";
     }
     res << ")";
-    return res.str();
+    return toUpperCase(res.str());
 }
 
 string valueListsToString(const std::vector<string>& values) {
@@ -33,13 +47,13 @@ string valueListsToString(const std::vector<string>& values) {
             res << ",";
     }
     res << "}";
-    return res.str();
+    return toUpperCase(res.str());
 }
 
 string output::makeFunctionType(const string& retType, std::vector<string>& argTypes) {
     stringstream res;
     res << typeListToString(argTypes) << "->" << retType;
-    return res.str();
+    return toUpperCase(res.str());
 }
 
 void output::errorLex(int lineno){

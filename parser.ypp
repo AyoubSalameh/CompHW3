@@ -54,7 +54,7 @@
 %nonassoc ELSE
 
 %%
-Program: Funcs                                                                  {&& = new Program();}
+Program: Funcs                                                                  {$$ = new Program();}
         ;
 Funcs: /*epsilon*/                                                              {$$ = new Funcs();}
      | FuncDecl Funcs                                                           {$$ = new Funcs();}
@@ -142,6 +142,9 @@ void yyerror(const char*) {
     exit(0);
 }
 
+table_stack table = table_stack();
 int main(){
-    return yyparse();
+    int parse = yyparse();
+    table.final_check();
+    return parse;
 }
