@@ -54,10 +54,10 @@
 %nonassoc ELSE
 
 %%
-Program: Funcs                                                                  {/*output::printProductionRule(1);*/}
+Program: Funcs                                                                  {&& = new Program();}
         ;
-Funcs: /*epsilon*/                                                              {/*output::printProductionRule(2);*/}
-     | FuncDecl Funcs                                                           {/*output::printProductionRule(3);*/}
+Funcs: /*epsilon*/                                                              {$$ = new Funcs();}
+     | FuncDecl Funcs                                                           {$$ = new Funcs();}
      ;
 
 FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE    {/*output::printProductionRule(4);*/}
@@ -91,7 +91,7 @@ Statement: LBRACE {table.open_scope();} Statements RBRACE                       
           | ID ASSIGN Exp SC                                                    {$$ = new Statement($1, dynamic_cast<Exp*>($3));}
           | Call SC                                                             {$$ = new Statement(dynamic_cast<Call*>($1));}
           | RETURN SC                                                           {$$ = new Statement($1);}
-          | RETURN Exp SC                                                       {$$ = new Statement(dynamic_cast<Exp*>($2), $1);}
+          | RETURN Exp SC                                                       {$$ = new Statement($1, dynamic_cast<Exp*>($2) );}
           | IF LPAREN Exp RPAREN M Statement                                    {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                  table.close_scope();}
           | IF LPAREN Exp RPAREN M Statement ELSE  {table.close_scope(); table.open_scope();} Statement      {$$ = new Statement(dynamic_cast<Exp*>($3));
@@ -102,8 +102,8 @@ Statement: LBRACE {table.open_scope();} Statements RBRACE                       
           | CONTINUE SC                                                         {$$ = new Statement($1);}
           ;
           
-Call: ID LPAREN ExpList RPAREN      {/*output::printProductionRule(28)*/;}
-    | ID LPAREN RPAREN          {/*output::printProductionRule(29)*/;}
+Call: ID LPAREN ExpList RPAREN                                                  {$$ = new Call($1, dynamic_cast<ExpList*>($3));}
+    | ID LPAREN RPAREN                                                          {$$ = new Call($1);}
     ;
     
 ExpList: Exp                                                                    {$$ = new ExpList(dynamic_cast<Exp*>($1));}

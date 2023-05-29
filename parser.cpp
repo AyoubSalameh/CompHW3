@@ -1,4 +1,6 @@
 #include "parser.h"
+#include "symbol.h"
+
 #include <stdio.h>
 
 extern table_stack table;
@@ -6,14 +8,6 @@ extern int yylineno;
 using namespace std;
 
 
-static bool type_compatible(const string& right, const string& left) {
-    if (right != left) {
-        if (!(left == "int" && right == "byte")) {
-            return false;
-        }
-    }
-    return true;
-}
 
 ///******************************************FUNC DECL***************************************************
 
@@ -138,14 +132,24 @@ Statement::Statement(Type *t, Node *id, Exp *e) {
 }
 
 Statement::Statement(Node *id, Exp *e) {
-    symbol_table_entry* entry = table.get_variable(id->name);
-    //if we get here, symbol exists, otherwise we wouldve thrown error from the function
+    if(id->name == "return"){
+        string ret_type = table.tables_stack.back().func_ret_type;
+        if(!(type_compatible(ret_type, e->type))) {
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
+    else{
+        symbol_table_entry* entry = table.get_variable(id->name);
+        //if we get here, symbol exists, otherwise we wouldve thrown error from the function
 
-    if(!type_compatible(entry->type, e->type)) {
-        output::errorMismatch(yylineno);
-        exit(0);
+        if(!type_compatible(entry->type, e->type)) {
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
     }
+    }  
 }
+
 
 Statement::Statement(Node* n) {
     if(n->name == "return") {
@@ -170,13 +174,7 @@ Statement::Statement(Node* n) {
 
 }
 
-Statement::Statement(Exp* e, Node* ret) {
-    string ret_type = table.tables_stack.back().func_ret_type;
-    if(!(type_compatible(ret_type, e->type))) {
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-}
+
 
 Statement::Statement(Exp* e) {
     if(e->type != "bool") {
@@ -184,4 +182,18 @@ Statement::Statement(Exp* e) {
         exit(0);
     }
 
+}
+
+
+
+///****************************************** STATEMENT *******************************************
+Call::Call(Node *id, ExpList *params)  : Node(id->name) {
+    vector<string> par = {};
+    if(params){
+        for(int i = 0; i < params->expressions.size(); i++){
+            par.push_back(params->expressions[i].type);
+        }
+    }
+    this->type = table.get_function(id->name, par)->type;
+    /*errors(if there are any) are thrown from within get_functions*/
 }

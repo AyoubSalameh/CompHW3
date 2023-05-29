@@ -46,6 +46,10 @@ public:
 class Call : public Node {
 public:
     std::string type;
+
+    //Call -> ID (ExpList)
+    //Call -> ID ()
+    Call(Node* id, ExpList* params = nullptr);
 };
 
 class Exp: public Node {
@@ -75,7 +79,7 @@ public:
     Exp(Node* id);
 
     //exp -> call
-    Exp(Call* c);
+    Exp(Call* c) : Node(c->name), type(c->type){}
 };
 
 class ExpList : public Node {
@@ -94,7 +98,7 @@ class Statement : public Node {
 public:
 
     //statement -> { statements }
-    Statement();
+    Statement() = default;
 
     //statement -> type ID ;
     Statement(Type* t, Node* id);
@@ -103,18 +107,16 @@ public:
     Statement(Type* t, Node* id, Exp* e);
 
     //statement -> ID = Exp ;
+    //statement -> return exp;
     Statement(Node* id, Exp* e);
 
     //statement -> call ;
-    Statement(Call* c);
+    Statement(Call* c) : Node(c->type){}
 
     //statement -> return ;
     //statement -> break ;
     //statement -> continue ;
     Statement(Node* n);
-
-    //statement -> return exp;
-    Statement(Exp* e, Node* ret);
 
     //statement -> if ( exp ) statement
     Statement(Exp* e);
@@ -123,25 +125,21 @@ public:
 
 class Statements : public Node {
 public:
-    Statements(Statement* st);
-    Statements(Statements* sts, Statement* st);
+    Statements(Statement* st) : Node(st->name) {}
+    Statements(Statements* sts, Statement* st) : Node(st->name) {}
 
 };
 
 class Program : public Node{
-    /*
 public:
     Program() {}
-    ~Program() = default
-     */
+    ~Program() = default;
 };
 
 class Funcs : public Node{
-    /*
 public:
     Funcs() {}
-    ~Funcs() = default
-     */
+    ~Funcs() = default;
 };
 
 class OverRide: public Node{

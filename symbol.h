@@ -6,6 +6,10 @@
 
 using namespace std;
 
+
+
+bool type_compatible(const string& right, const string& left);
+
 ///********************* SYMBOL TABLE ENTRY ********************************///
 class symbol_table_entry {
 public:
@@ -34,7 +38,7 @@ public:
     string func_ret_type;
 
     symbol_table_scope(bool loop, string ret): is_loop(loop), func_ret_type(ret) {}
-    ~symbol_table_scope();      //add print scope in implementation
+    ~symbol_table_scope() = default;
 
     bool exists_in_scope(const symbol_table_entry& entry);
     void insert_to_scope(symbol_table_entry& entry);
@@ -53,7 +57,7 @@ public:
     vector<symbol_table_scope> tables_stack;
     stack<int> offsets_stack;
 
-    table_stack(); //adding print and printi and global stack scope\scope 0
+    table_stack();
     ~table_stack() = default;
 
     void open_scope(bool is_loop = false, string ret_type = ""); //open a new empty scope
@@ -65,6 +69,7 @@ public:
     ///added need to check if func: if paramters are the same
     bool symbol_declared(const symbol_table_entry& entry);  ///havent used yet
     symbol_table_entry* get_variable(const string& name);
+    symbol_table_entry* get_function(const string& name, vector<string> params);
 
 };
 

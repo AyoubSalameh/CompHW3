@@ -4,6 +4,28 @@
 extern table_stack table;
 extern int yylineno;
 
+bool type_compatible(const string& right, const string& left){
+    if (right != left) {
+        if (!(left == "int" && right == "byte")) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool type_vector_compatible(const vector<string>& right, const vector<string>& left){
+    if(right.size() != left.size()){
+        return false;
+    }
+    for(int i=0; i<right.size(); i++){
+        if(!type_compatible(right[i], left[i])){
+            return false;
+        }
+    }
+    return true;
+}
+
 
 ///HELPER
 static bool are_vectors_equal(const vector<string>& a,const  vector<string>& b) {
@@ -124,6 +146,13 @@ symbol_table_entry* symbol_table_scope::get_variable_in_scope(const string &name
 
 
 ///********************* TABLE STACK ********************************///
+table_stack::table_stack(){
+    this->offsets_stack.push(0);
+    this->open_scope();
+    this->insert_symbol("print","void",true,false,{"string"});
+    this->insert_symbol("printi","void",true,false,{"int"});
+}
+
 bool table_stack::symbol_exists(const symbol_table_entry& entry) {
     for(auto it = tables_stack.begin(); it != tables_stack.end(); it++) {
         it->exists_in_scope(entry);
@@ -152,7 +181,9 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
 
 }
 
-void table_stack::open_scope(bool is_loop, string ret_type) {
+
+void table_stack::open_scope(bool is_loop, string ret_type)
+{
     symbol_table_scope new_scope(is_loop, ret_type);
     tables_stack.push_back(new_scope);
     offsets_stack.push(offsets_stack.top());
@@ -193,4 +224,36 @@ symbol_table_entry* table_stack::get_variable(const string &name) {
     }
     output::errorUndef(yylineno, name);
     exit(0);
+}
+
+
+symbol_table_entry* table_stack::get_function(const string& name, vector<string> params){
+    bool found_name = false;
+    int counter = 0;
+    symbol_table_entry* entry = nullptr;
+    for(auto it = (this->tables_stack[0].entries).begin() ; it != (this->tables_stack[0].entries).end(); it++){
+        if(name == it->name){
+            found_name = true;
+            
+            if(type_vector_compatible(it->params, params)){
+                counter++;
+                entry = &(*it);
+            }
+        }
+    }
+    if(counter > 1){
+        output::errorAmbiguousCall(yylineno, name);
+        exit(0);
+    }
+    if(counter == 1){
+        return entry;
+    }
+    if(found_name){
+        /*counter == 0*/
+        output::errorPrototypeMismatch(yylineno, name);
+        exit(0);
+    }
+    /*counter == 0  and found name == false*/
+    output::errorUndefFunc(yylineno, name);
+    exit(0);    
 }
