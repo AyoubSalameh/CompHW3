@@ -60,7 +60,7 @@ Funcs: /*epsilon*/                                                              
      | FuncDecl Funcs                                                           {$$ = new Funcs();}
      ;
 
-FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE Statements RBRACE    {/*output::printProductionRule(4);*/}
+FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE {} Statements RBRACE    {/*output::printProductionRule(4);*/}
         ;
 OverRide: /*epsilon*/                                                           {$$ = new OverRide();}
         | OVERRIDE                                                              {$$ = new OverRide(true);}

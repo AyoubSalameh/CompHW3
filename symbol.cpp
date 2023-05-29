@@ -172,11 +172,15 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
     this->symbol_exists(entry);
 
     //if we got here, the insertion is legal
-    tables_stack.back().insert_to_scope(entry);
+    tables_stack[0].insert_to_scope(entry);
+    /*maybe .back()*/
 
     if(!func){
         offsets_stack.pop();
         offsets_stack.push(insert_offset+1);
+    }
+    if(func){
+        offsets_stack.push(0);
     }
 
 }

@@ -41,6 +41,8 @@ class Type : public Node {
 public:
     std::string type;
     Type(std::string t) : type(t) {}
+
+    ~Type() = default;
 };
 
 class Call : public Node {
@@ -50,6 +52,8 @@ public:
     //Call -> ID (ExpList)
     //Call -> ID ()
     Call(Node* id, ExpList* params = nullptr);
+
+    ~Call() = default;
 };
 
 class Exp: public Node {
@@ -80,6 +84,8 @@ public:
 
     //exp -> call
     Exp(Call* c) : Node(c->name), type(c->type){}
+
+    ~Exp() = default;
 };
 
 class ExpList : public Node {
@@ -91,6 +97,8 @@ public:
 
     //explist -> exp , explist
     ExpList(Exp* e, ExpList* list);
+
+    ~ExpList() = default;
 };
 
 
@@ -121,12 +129,15 @@ public:
     //statement -> if ( exp ) statement
     Statement(Exp* e);
 
+    ~Statement() = default;
+
 };
 
 class Statements : public Node {
 public:
     Statements(Statement* st) : Node(st->name) {}
     Statements(Statements* sts, Statement* st) : Node(st->name) {}
+    ~Statements() = default;
 
 };
 
@@ -146,18 +157,21 @@ class OverRide: public Node{
 public:
     bool isOverRide;
     OverRide(bool answer = false): isOverRide(answer) {}
+    ~OverRide() = default;
 };
 
 class RetType : public Node{
 public:
     std::string type;
     RetType(std::string t) : type(t) {}
+    ~RetType() = default;
 };
 
 class FormalDecl : public Node{
 public:
     std::string type;
     FormalDecl(Type* t, Node* node) : type(t->type), Node(node) {}
+    ~FormalDecl() = default;
 };
 
 class FormalsList : public Node{
@@ -165,6 +179,7 @@ public:
     std::vector<FormalDecl> param_list;
     FormalsList(FormalDecl* dec, FormalsList* list);
     FormalsList(FormalDecl* dec);
+    ~FormalsList() = default;
 };
 
 class Formals: public Node{
@@ -172,12 +187,14 @@ public:
     std::vector<FormalDecl> param_list;
     Formals(FormalsList* fl) : param_list(fl->param_list) {}
     Formals() {}
+    ~Formals() = default;
 
 };
 
 class FuncDecl : public Node {
 public:
     FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params);//TODO
+    ~FuncDecl() = default;
 };
 
 

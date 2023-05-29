@@ -186,7 +186,7 @@ Statement::Statement(Exp* e) {
 
 
 
-///****************************************** STATEMENT *******************************************
+///****************************************** Call *******************************************
 Call::Call(Node *id, ExpList *params)  : Node(id->name) {
     vector<string> par = {};
     if(params){
@@ -196,4 +196,12 @@ Call::Call(Node *id, ExpList *params)  : Node(id->name) {
     }
     this->type = table.get_function(id->name, par)->type;
     /*errors(if there are any) are thrown from within get_functions*/
+}
+
+
+///****************************************** Call *******************************************
+FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
+    vector<
+    for(  )
+    //buils vector params
 }
