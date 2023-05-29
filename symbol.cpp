@@ -199,6 +199,7 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
     }
 }
 
+///we didnt check here if some are similar - like - foo(int x, int x)
 void table_stack::insert_func_args(vector<string> types, vector<string> names, string retType) {
     //cout << "in insert_func_args " << endl;
     
@@ -212,7 +213,11 @@ void table_stack::insert_func_args(vector<string> types, vector<string> names, s
         //cout << names[i] << endl;
         symbol_table_entry entry(names[i], types[i], offset);
         //cout << i << " " << endl;
+
+        symbol_exists(entry);
+
         this->tables_stack.back().entries.push_back(entry);
+
         offset--;
     }
 }
@@ -287,7 +292,8 @@ symbol_table_entry* table_stack::get_function(const string& name, vector<string>
     if(counter == 1){
         return entry;
     }
-    if(found_name){
+    //changed - added name != main. without, test 15 returned mismatch on "main(int x, int y)
+    if(found_name && name != "main"){
         /*counter == 0*/
         output::errorPrototypeMismatch(yylineno, name);
         exit(0);

@@ -127,13 +127,13 @@ Statement::Statement(Type *t, Node *id, Exp *e) {
 
 Statement::Statement(Node *id, Exp *e) {
     if(id->name == "return"){
-        //cout << "!!!!!!!!!!!!!!!!!!!!!!!" << endl;
         string ret_type = table.tables_stack.back().func_ret_type;
         if(!(type_compatible(ret_type, e->type))) {
-            cout <<  "ret_type is " << ret_type << " e_type is " << e->type << endl;
+            //cout <<  "ret_type is " << ret_type << " e_type is " << e->type << endl;
             output::errorMismatch(yylineno);
             exit(0);
         }
+
     }
     else{
         //cout << "!!!!!!!!!!! else     !!!!!!!!!!!!" << endl;
@@ -152,10 +152,13 @@ Statement::Statement(Node *id, Exp *e) {
 Statement::Statement(Node* n) {
     if(n->name == "return") {
         string ret_type = table.tables_stack.back().func_ret_type;
+        if(table.tables_stack.back().is_loop)
+            return;
         if (ret_type != "void") {
             output::errorMismatch(yylineno);
             exit(0);
         }
+
     }
     if(n->name == "break") {
         if(!(table.checkLoop())) {
@@ -209,4 +212,11 @@ FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
     table.insert_symbol(id->name, rt->type, true, override->isOverRide, types);
     table.insert_func_args(types, ids, rt->type);
     //buils vector params
+}
+
+void check_exp(Exp* exp) {
+    if(exp->type != "bool") {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
 }

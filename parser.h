@@ -197,7 +197,9 @@ public:
     ~FuncDecl() = default;
 };
 
-
+//this was added to check the type of exp before going in statement.
+//checking the type in statement led to a wrong yyline printing.
+void check_exp(Exp* exp);
 
 
 

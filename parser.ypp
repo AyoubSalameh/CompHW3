@@ -92,11 +92,11 @@ Statement: LBRACE {table.open_scope();} Statements RBRACE                       
           | Call SC                                                             {$$ = new Statement(dynamic_cast<Call*>($1));}
           | RETURN SC                                                           {$$ = new Statement($1);}
           | RETURN Exp SC                                                       {$$ = new Statement($1, dynamic_cast<Exp*>($2) );}
-          | IF LPAREN Exp RPAREN M Statement                                    {$$ = new Statement(dynamic_cast<Exp*>($3));
+          | IF LPAREN CheckBoolExp RPAREN M Statement                                    {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                  table.close_scope();}
-          | IF LPAREN Exp RPAREN M Statement ELSE  {table.close_scope(); table.open_scope();} Statement      {$$ = new Statement(dynamic_cast<Exp*>($3));
+          | IF LPAREN CheckBoolExp RPAREN M Statement ELSE  {table.close_scope(); table.open_scope();} Statement      {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                                                                     table.close_scope();}
-          | WHILE LPAREN Exp RPAREN {table.open_scope(true);} Statement         {$$ = new Statement(dynamic_cast<Exp*>($3));
+          | WHILE LPAREN CheckBoolExp RPAREN {table.open_scope(true);} Statement         {$$ = new Statement(dynamic_cast<Exp*>($3));
                                                                                  table.close_scope();}
           | BREAK SC                                                            {$$ = new Statement($1);}
           | CONTINUE SC                                                         {$$ = new Statement($1);}
@@ -134,6 +134,7 @@ Exp: LPAREN Exp RPAREN                                                          
     ;
 
 M:                                                                              {table.open_scope();}
+CheckBoolExp: Exp                                                               {check_exp(dynamic_cast<Exp*>($1));}
 
 %%
 
