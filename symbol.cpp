@@ -162,7 +162,7 @@ bool table_stack::symbol_exists(const symbol_table_entry& entry) {
 
 void table_stack::insert_symbol(const string &n, string t, bool func, bool override, vector <string> p) {
     //insert to table_stack
-    if(n == "main" && override == true) {
+    if (n == "main" && override == true) {
         output::errorMainOverride(yylineno);
         exit(0);
     }
@@ -175,14 +175,20 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
     tables_stack[0].insert_to_scope(entry);
     /*maybe .back()*/
 
-    if(!func){
+    if (!func) {
         offsets_stack.pop();
-        offsets_stack.push(insert_offset+1);
+        offsets_stack.push(insert_offset + 1);
     }
-    if(func){
-        offsets_stack.push(0);
-    }
+}
 
+void table_stack::insert_func_args(vector <string> types, vector <string> names, string retType) {
+    this->open_scope(false, retType);
+    int offset = -1;
+    for(int i = 0; i < types.size(); i++) {
+        symbol_table_entry entry(names[i], types[i], offset);
+        this->tables_stack.back().entries.push_back(entry);
+        offset--;
+    }
 }
 
 

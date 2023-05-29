@@ -201,7 +201,14 @@ Call::Call(Node *id, ExpList *params)  : Node(id->name) {
 
 ///****************************************** Call *******************************************
 FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
-    vector<
-    for(  )
+    vector<FormalDecl> param_list = params->param_list;
+    vector<string> types{};
+    vector<string> ids{};
+    for(int i = 0; i<param_list.size(); i++) {
+        types.push_back(param_list[i].type);
+        types.push_back(param_list[i].name);
+    }
+    table.insert_symbol(id->name, rt->type, true, override->isOverRide, types);
+    table.insert_func_args(types, ids, rt->type);
     //buils vector params
 }

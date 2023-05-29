@@ -60,7 +60,7 @@ Funcs: /*epsilon*/                                                              
      | FuncDecl Funcs                                                           {$$ = new Funcs();}
      ;
 
-FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE {} Statements RBRACE    {/*output::printProductionRule(4);*/}
+FuncDecl: OverRide RetType ID LPAREN Formals RPAREN LBRACE {$$ = new FuncDecl(dynamic_cast<OverRide*>($1), dynamic_cast<RetType*>($2), $3, dynamic_cast<Formals*>($5));} Statements RBRACE    {table.close_scope();}
         ;
 OverRide: /*epsilon*/                                                           {$$ = new OverRide();}
         | OVERRIDE                                                              {$$ = new OverRide(true);}
