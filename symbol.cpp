@@ -300,3 +300,13 @@ symbol_table_entry* table_stack::get_function(const string& name, vector<string>
     output::errorUndefFunc(yylineno, name);
     exit(0);    
 }
+
+bool table_stack::checkLoop() {
+    for(auto it = this->tables_stack.rbegin(); it != this->tables_stack.rend(); it++) {
+        if(it->is_loop)
+        {
+            return true;
+        }
+    }
+    return false;
+}

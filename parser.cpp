@@ -158,13 +158,13 @@ Statement::Statement(Node* n) {
         }
     }
     if(n->name == "break") {
-        if(table.tables_stack.back().is_loop == false) {
+        if(!(table.checkLoop())) {
             output::errorUnexpectedBreak(yylineno);
             exit(0);
         }
     }
     if(n->name == "continue") {
-        if(table.tables_stack.back().is_loop == false) {
+        if(!(table.checkLoop())) {
             output::errorUnexpectedContinue(yylineno);
             exit(0);
         }

@@ -72,6 +72,7 @@ public:
     bool symbol_declared(const symbol_table_entry& entry);  ///havent used yet
     symbol_table_entry* get_variable(const string& name);
     symbol_table_entry* get_function(const string& name, vector<string> params = {});
+    bool checkLoop();
 
 };
 
