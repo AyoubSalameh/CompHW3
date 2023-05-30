@@ -33,13 +33,15 @@ public:
     std::string name;
 
     Node(const std::string s= ""): name(s) {}
-    Node(const Node* node) : name(node->name) {}
+    //Node(const Node* node) : name(node->name) {}
     virtual ~Node(){}
 };
 
 class Type : public Node {
 public:
     std::string type;
+
+    /*Type -> INT | BYTE | BOOL */
     Type(std::string t) : type(t) {}
 
     ~Type() = default;
@@ -49,8 +51,8 @@ class Call : public Node {
 public:
     std::string type;
 
-    //Call -> ID (ExpList)
-    //Call -> ID ()
+    /*Call -> ID (ExpList)
+    Call -> ID ()*/
     Call(Node* id, ExpList* params = nullptr);
 
     ~Call() = default;
@@ -59,10 +61,9 @@ public:
 class Exp: public Node {
 public:
     std::string type;
-    //bool is_var;
 
     //exp -> (exp)
-    Exp(Exp* e) : type(e->type), Node(e) {};
+    Exp(Exp* e) : type(e->type), Node(e->name) {};
 
     //exp -> exp binop/relop/and/or exp
     Exp(Exp* e1, Node* op, Exp* e2);
@@ -87,6 +88,11 @@ public:
 
     ~Exp() = default;
 };
+
+/*this was added to check the type of exp before going in statement.
+checking the type in statement led to a wrong yyline printing.*/
+void check_exp(Exp* exp);
+
 
 class ExpList : public Node {
 public:
@@ -135,20 +141,30 @@ public:
 
 class Statements : public Node {
 public:
+
+    //Statements -> Statement
     Statements(Statement* st) : Node(st->name) {}
+
+    //Statements -> Statements Statement
     Statements(Statements* sts, Statement* st) : Node(st->name) {}
+
     ~Statements() = default;
 
 };
 
 class Program : public Node{
 public:
+
+    //Program -> Funcs
     Program() {}
+
     ~Program() = default;
 };
 
 class Funcs : public Node{
 public:
+
+    //Funcs -> FuncDecl Funcs | epsilon
     Funcs() {}
     ~Funcs() = default;
 };
@@ -156,6 +172,8 @@ public:
 class OverRide: public Node{
 public:
     bool isOverRide;
+
+    //OverRide -> OVERRIDE | epsilon
     OverRide(bool answer = false): isOverRide(answer) {}
     ~OverRide() = default;
 };
@@ -163,6 +181,8 @@ public:
 class RetType : public Node{
 public:
     std::string type;
+
+    //RetType -> Type | VOID 
     RetType(std::string t) : type(t) {}
     ~RetType() = default;
 };
@@ -170,14 +190,20 @@ public:
 class FormalDecl : public Node{
 public:
     std::string type;
-    FormalDecl(Type* t, Node* node) : type(t->type), Node(node) {}
+
+    //FuncDecl -> OverRide RetType ID ( Formals )  { Statements }
+    FormalDecl(Type* t, Node* node) : type(t->type), Node(node->name) {}
     ~FormalDecl() = default;
 };
 
 class FormalsList : public Node{
 public:
     std::vector<FormalDecl> param_list;
+
+    //FormalsList -> FormalDecl , FormalsList
     FormalsList(FormalDecl* dec, FormalsList* list);
+
+    //FormalsList -> FormalDecl
     FormalsList(FormalDecl* dec);
     ~FormalsList() = default;
 };
@@ -185,7 +211,11 @@ public:
 class Formals: public Node{
 public:
     std::vector<FormalDecl> param_list;
+
+    //Formals -> FormalsList
     Formals(FormalsList* fl) : param_list(fl->param_list) {}
+
+    //Formals -> epsilon
     Formals() {}
     ~Formals() = default;
 
@@ -193,13 +223,12 @@ public:
 
 class FuncDecl : public Node {
 public:
+
+    ////FormalDecl -> Type ID
     FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params);//TODO
     ~FuncDecl() = default;
 };
 
-//this was added to check the type of exp before going in statement.
-//checking the type in statement led to a wrong yyline printing.
-void check_exp(Exp* exp);
 
 
 

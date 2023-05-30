@@ -26,7 +26,7 @@ FormalsList::FormalsList(FormalDecl *dec) : Node(dec->name) {
 
 ///******************************************EXP***************************************************
 
-Exp::Exp(Exp *e1, Node *op, Exp *e2) : Node(op) {
+Exp::Exp(Exp *e1, Node *op, Exp *e2) : Node(op->name) {
     string type1 = e1->type;
     string type2 = e2->type;
     string operation = op->name;
@@ -65,7 +65,7 @@ Exp::Exp(Exp *e1, Node *op, Exp *e2) : Node(op) {
     }
 }
 
-Exp::Exp(Node *op, Exp *e) : Node(op) {
+Exp::Exp(Node *op, Exp *e) : Node(op->name) {
     if(e->type != "bool") {
         output::errorMismatch(yylineno);
         exit(0);
@@ -73,7 +73,7 @@ Exp::Exp(Node *op, Exp *e) : Node(op) {
     this->type = "bool";
 }
 
-Exp::Exp(Node *n, Node *b) : Node(n) {
+Exp::Exp(Node *n, Node *b) : Node(n->name) {
     int num = stoi(n->name);
     if(num > 255) {
         output::errorByteTooLarge(yylineno, n->name);
@@ -82,7 +82,7 @@ Exp::Exp(Node *n, Node *b) : Node(n) {
     this->type = "byte";
 }
 
-Exp::Exp(Node *n, std::string type) : Node(n), type(type) {}
+Exp::Exp(Node *n, std::string type) : Node(n->name), type(type) {}
 
 Exp::Exp(Type *t, Exp *e) : Node(t->type) {
     string e_type = e->type;
@@ -93,9 +93,17 @@ Exp::Exp(Type *t, Exp *e) : Node(t->type) {
     this->type = t->type;
 }
 
-Exp::Exp(Node *id) : Node(id) {
+Exp::Exp(Node *id) : Node(id->name) {
     symbol_table_entry* entry = table.get_variable(id->name);
     this->type = entry->type;
+}
+
+
+void check_exp(Exp* exp) {
+    if(exp->type != "bool") {
+        output::errorMismatch(yylineno);
+        exit(0);
+    }
 }
 
 ///******************************************EXP LIST*******************************************
@@ -188,6 +196,8 @@ Statement::Statement(Exp* e) {
 
 
 ///****************************************** Call *******************************************
+
+
 Call::Call(Node *id, ExpList *params)  : Node(id->name) {
     vector<string> par = {};
     if(params){
@@ -201,6 +211,8 @@ Call::Call(Node *id, ExpList *params)  : Node(id->name) {
 
 
 ///******************************************FUNC DECL***************************************************
+
+
 FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
     vector<FormalDecl> param_list = params->param_list;
     vector<string> types{};
@@ -214,9 +226,3 @@ FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
     //buils vector params
 }
 
-void check_exp(Exp* exp) {
-    if(exp->type != "bool") {
-        output::errorMismatch(yylineno);
-        exit(0);
-    }
-}

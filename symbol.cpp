@@ -5,6 +5,8 @@
 extern table_stack table;
 extern int yylineno;
 
+/*******************************HEALPERS**********************************************/
+
 bool type_compatible(const string& right, const string& left){
     if (right != left) {
         if (!(right == "int" && left == "byte")) {
@@ -15,7 +17,7 @@ bool type_compatible(const string& right, const string& left){
 }
 
 
-bool type_vector_compatible(const vector<string>& right, const vector<string>& left){
+static bool type_vector_compatible(const vector<string>& right, const vector<string>& left){
     if(right.size() != left.size()){
         return false;
     }
@@ -28,7 +30,6 @@ bool type_vector_compatible(const vector<string>& right, const vector<string>& l
 }
 
 
-///HELPER
 static bool are_vectors_equal(const vector<string>& a,const  vector<string>& b) {
     if(a.size() != b.size()) {
         return false;
@@ -76,19 +77,12 @@ void symbol_table_scope::insert_to_scope(symbol_table_entry &entry) {
 }
 
 
-void symbol_table_scope::print_scope() { //TODO: remove prints
-    
-    ////cout << " in print_scope " << table.tables_stack[0].entries[3].name << endl;
-    ////cout << this->entries.begin()->name << endl;
-
+void symbol_table_scope::print_scope() {
     for(auto it=(this->entries).begin(); it != (this->entries).end(); it++){
-        ////cout <<  "in for" << endl;
         if(it->is_func) {
-            ////cout <<  " !!!!!!!!!!!!!  in func  !!!!!!!!!!!!!!!!!!!" << endl;
             output::printID(it->name, 0, output::makeFunctionType(it->type, it->params));
         }
         else {
-            ////cout <<  " !!!!!!!!!!!!!  in else  !!!!!!!!!!!!!!!!!!!" << endl;
             output::printID(it->name, it->offset, it->type);
         }
     }
@@ -108,7 +102,17 @@ static bool are_params_equal(const vector<string>& called, const vector<string>&
     return true;
 }
 
-bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entry) {
+//this func is only for variables (id)
+symbol_table_entry* symbol_table_scope::get_variable_in_scope(const string &name) {
+    for(auto it = entries.begin(); it != entries.end(); it++) {
+        if(name == it->name && it->is_func == false)
+            return &(*it);
+    }
+    return nullptr;
+}
+
+
+/*bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entry) {
     if(entry.is_func == false) {
         for(auto it = entries.begin(); it != entries.end(); it++) {
             if(entry.name == it->name && it->is_func == false)
@@ -138,17 +142,7 @@ bool symbol_table_scope::symbol_declared_in_scope(const symbol_table_entry &entr
         }
     }
     return false;
-}
-
-///this func is only for variables (id)
-symbol_table_entry* symbol_table_scope::get_variable_in_scope(const string &name) {
-    for(auto it = entries.begin(); it != entries.end(); it++) {
-        if(name == it->name && it->is_func == false)
-            return &(*it);
-    }
-    return nullptr;
-}
-
+}*/
 
 
 
@@ -178,8 +172,11 @@ bool table_stack::symbol_exists(const symbol_table_entry& entry) {
 }
 
 void table_stack::insert_symbol(const string &n, string t, bool func, bool override, vector <string> p) {
-    //insert to table_stack
-    ////cout << "in insert_symbol " << n << " " << t << " " <<  func << endl;  
+    if(DEBUG){
+        cout << "in insert_symbol with: " << t << ", " << n << ", is func: " <<  func << ", is override: " << override << endl; 
+        cout << endl;
+    }
+
     if (n == "main" && override == true) {
         output::errorMainOverride(yylineno);
         exit(0);
@@ -191,7 +188,6 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
 
     //if we got here, the insertion is legal
     tables_stack.back().insert_to_scope(entry);
-    /*maybe .back()*/
 
     if (!func) {
         offsets_stack.pop();
@@ -199,21 +195,20 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
     }
 }
 
-///we didnt check here if some are similar - like - foo(int x, int x)
+
 void table_stack::insert_func_args(vector<string> types, vector<string> names, string retType) {
-    //cout << "in insert_func_args " << endl;
-    
+    if(DEBUG){
+        cout << "in insert_func_args" << tables_stack.size() << endl;
+    }
+
     this->open_scope(false, retType);
 
-    //cout << "in insert_func_args, tables_stack size (number of scopes) is " << tables_stack.size() << endl;
+
     int offset = -1;
     for(int i = 0; i < types.size(); i++) {
-        //cout << "in for !!!!! " << endl;
-        //cout << types[i] << endl;
-        //cout << names[i] << endl;
         symbol_table_entry entry(names[i], types[i], offset);
-        //cout << i << " " << endl;
 
+        /*checking that we dont insert the same parameter like - foo(int x, int x)*/
         symbol_exists(entry);
 
         this->tables_stack.back().entries.push_back(entry);
@@ -225,38 +220,44 @@ void table_stack::insert_func_args(vector<string> types, vector<string> names, s
 
 void table_stack::open_scope(bool is_loop, string ret_type)
 {
-    //cout << "in open_scope " << endl;
+    if(DEBUG){
+        cout << "opening a new scope, number of scopes before is: " << tables_stack.size() << endl;
+        cout << "max offset before is: " << offsets_stack.top() << endl;
+    }
+    
     symbol_table_scope new_scope(is_loop, ret_type);
     tables_stack.push_back(new_scope);
     offsets_stack.push(offsets_stack.top());
-    //cout << "in open_scope, tables_stack size (number of scopes) is " <<tables_stack.size() << endl;
+
+    if(DEBUG){
+        cout << "number of scopes after is: " << tables_stack.size() << endl;
+        cout << "max offset after is: " << offsets_stack.top() << endl;
+        cout << endl;
+    }
+
 }
 
 void table_stack::close_scope() {
-    ////cout << "in close scope" << endl;
+    if(DEBUG){
+        cout << "going to close scope, number of scopes before is: " << tables_stack.size() << endl;
+        cout << "max offset before is: " << offsets_stack.top() << endl;
+    }
     output::endScope();
     symbol_table_scope to_close = tables_stack.back();
     to_close.print_scope();
     tables_stack.pop_back();
     offsets_stack.pop();
-}
 
-///in inserting, we made sure that a varibale appears only once, so its enough for use to check if a variable exists in one scope
-///havent used for variable. might use for functions
-bool table_stack::symbol_declared(const symbol_table_entry &entry) {
-    for(auto it = this->tables_stack.begin(); it != this->tables_stack.end(); it++) {
-        bool answer = it->symbol_declared_in_scope(entry);
-        if(answer == true)
-            return true;
+    if(DEBUG){
+        cout << "number of scopes after is: " << tables_stack.size() << endl;
+        if( offsets_stack.empty() ){
+            cout << "offset stack is empty" << endl;
+        }
+        else{
+            cout << "max offset after is: " << offsets_stack.top() << endl;
+        }
+        cout << endl;
     }
-    if(entry.is_func == false) {
-        output::errorUndef(yylineno, entry.name);
-        exit(0);
-    }
-    if(entry.is_func) {
-        output::errorUndefFunc(yylineno, entry.name);
-    }
-    return false;
 }
 
 symbol_table_entry* table_stack::get_variable(const string &name) {
@@ -285,28 +286,37 @@ symbol_table_entry* table_stack::get_function(const string& name, vector<string>
             }
         }
     }
-    if(counter > 1){
-        output::errorAmbiguousCall(yylineno, name);
-        exit(0);
-    }
+
     if(counter == 1){
         return entry;
     }
-    //changed - added name != main. without, test 15 returned mismatch on "main(int x, int y)
+
+    if(counter > 1){
+        /*we found more than one function with the same name and args are compatible*/
+        output::errorAmbiguousCall(yylineno, name);
+        exit(0);
+    }
+
     if(found_name && name != "main"){
-        /*counter == 0*/
+        /*counter == 0 but name was found, meaning there is a function under that name but with uncompaatible args.
+        added name != "main" to deal with test 15*/
         output::errorPrototypeMismatch(yylineno, name);
         exit(0);
     }
-    /*counter == 0  and found name == false*/
+
     if(name == "main"){
+        /*counter == 0  and found name == false*/
         output::errorMainMissing();
         exit(0);
     }
+
+    /*if we get here, there is no function under wanted name */
     output::errorUndefFunc(yylineno, name);
     exit(0);    
 }
 
+/*returns true if scope is nested inside a loop scope, false otherwise
+unsing rbegin, we itarate from upp to down*/
 bool table_stack::checkLoop() {
     for(auto it = this->tables_stack.rbegin(); it != this->tables_stack.rend(); it++) {
         if(it->is_loop)
@@ -316,3 +326,26 @@ bool table_stack::checkLoop() {
     }
     return false;
 }
+
+
+/*
+this function was not used
+
+///in inserting, we made sure that a varibale appears only once, so its enough for use to check if a variable exists in one scope
+///havent used for variable. might use for functions
+bool table_stack::symbol_declared(const symbol_table_entry &entry) {
+    for(auto it = this->tables_stack.begin(); it != this->tables_stack.end(); it++) {
+        bool answer = it->symbol_declared_in_scope(entry);
+        if(answer == true)
+            return true;
+    }
+    if(entry.is_func == false) {
+        output::errorUndef(yylineno, entry.name);
+        exit(0);
+    }
+    if(entry.is_func) {
+        output::errorUndefFunc(yylineno, entry.name);
+    }
+    return false;
+}
+*/

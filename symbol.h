@@ -4,6 +4,8 @@
 #include <stack>
 #include <vector>
 
+#define DEBUG false
+
 using namespace std;
 
 
@@ -42,13 +44,15 @@ public:
 
     bool exists_in_scope(const symbol_table_entry& entry);
     void insert_to_scope(symbol_table_entry& entry);
-    //symbol_table_entry* get_symbol_entry(const string& symbol_name); ///this is mainly to check main
     void print_scope(); //end scope, and calls helper function
-    //symbol_table_entry* getSymbol()
 
-    ///added
-    bool symbol_declared_in_scope(const symbol_table_entry& entry);
+    
     symbol_table_entry* get_variable_in_scope(const string& name);
+    
+    /*unused functions*/
+    //bool symbol_declared_in_scope(const symbol_table_entry& entry);
+    //symbol_table_entry* getSymbol()
+    //symbol_table_entry* get_symbol_entry(const string& symbol_name); ///this is mainly to check main
 };
 
 ///********************* TABLE STACK ********************************///
@@ -68,11 +72,12 @@ public:
     void insert_func_args(vector<string> types, vector<string> names, string retType);
     bool symbol_exists(const symbol_table_entry& entry);    ///used only in insert
 
-    ///added need to check if func: if paramters are the same
-    bool symbol_declared(const symbol_table_entry& entry);  ///havent used yet
     symbol_table_entry* get_variable(const string& name);
     symbol_table_entry* get_function(const string& name, vector<string> params = {});
     bool checkLoop();
+
+    /*unused functions*/
+    //bool symbol_declared(const symbol_table_entry& entry);
 
 };
 
