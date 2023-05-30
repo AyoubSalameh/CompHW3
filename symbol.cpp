@@ -333,6 +333,20 @@ bool table_stack::checkLoop() {
 }
 
 
+/*if a scope is nested inside a function scope, will return its return type
+return values: 
+"not_nested_in_func" - if it is not nested in func scope
+type otherwise "*/
+string table_stack::get_closest_func_return_type(){
+    for(auto it = this->tables_stack.rbegin(); it != this->tables_stack.rend(); it++) {
+        if(it->func_ret_type != ""){
+            return it->func_ret_type;
+        }
+    }
+    return "not_nested_in_func";
+}
+
+
 /*
 this function was not used
 

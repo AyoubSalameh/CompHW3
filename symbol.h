@@ -6,6 +6,7 @@
 
 #define DEBUG false
 
+
 using namespace std;
 
 
@@ -37,7 +38,7 @@ class symbol_table_scope {
 public:
     vector<symbol_table_entry> entries;
     bool is_loop;
-    string func_ret_type;
+    string func_ret_type; //if scope belongs to a function, this will hols its return type. will be an empty string otherwise.
 
     symbol_table_scope(bool loop, string ret): is_loop(loop), func_ret_type(ret) {}
     ~symbol_table_scope() = default;
@@ -75,6 +76,7 @@ public:
     symbol_table_entry* get_variable(const string& name);
     symbol_table_entry* get_function(const string& name, vector<string> params = {});
     bool checkLoop();
+    string get_closest_func_return_type();
 
     /*unused functions*/
     //bool symbol_declared(const symbol_table_entry& entry);

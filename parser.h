@@ -120,8 +120,8 @@ public:
     //statement -> type ID = Exp ;
     Statement(Type* t, Node* id, Exp* e);
 
-    //statement -> ID = Exp ;
-    //statement -> return exp;
+    /*statement -> ID = Exp ;
+    /statement -> return exp;*/
     Statement(Node* id, Exp* e);
 
     //statement -> call ;

@@ -133,18 +133,26 @@ Statement::Statement(Type *t, Node *id, Exp *e) {
     table.insert_symbol(id->name, t->type);
 }
 
+/*statement -> ID = Exp ;
+/statement -> return exp;*/
 Statement::Statement(Node *id, Exp *e) {
     if(id->name == "return"){
-        string ret_type = table.tables_stack.back().func_ret_type;
+        /* string ret_type = table.tables_stack.back().func_ret_type; */
+        string ret_type = table.get_closest_func_return_type();
+
+        if(ret_type == "not_nested_in_func"){
+            /*dont think this case is even reachable*/
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
+
         if(!(type_compatible(ret_type, e->type))) {
-            //cout <<  "ret_type is " << ret_type << " e_type is " << e->type << endl;
             output::errorMismatch(yylineno);
             exit(0);
         }
 
     }
     else{
-        //cout << "!!!!!!!!!!! else     !!!!!!!!!!!!" << endl;
         symbol_table_entry* entry = table.get_variable(id->name);
         //if we get here, symbol exists, otherwise we wouldve thrown error from the function
 
@@ -159,9 +167,30 @@ Statement::Statement(Node *id, Exp *e) {
 
 Statement::Statement(Node* n) {
     if(n->name == "return") {
-        string ret_type = table.tables_stack.back().func_ret_type;
+        //string ret_type = table.tables_stack.back().func_ret_type;
+        string ret_type = table.get_closest_func_return_type();
+        if(ret_type == "not_nested_in_func"){
+            /*dont think this case is even reachable*/
+            output::errorMismatch(yylineno);
+            exit(0);
+        }
+
         if(table.tables_stack.back().is_loop)
+        {
+        /*TODO: not sure this check is the right thing to do:
+        int foo(){
+            while(true)
+            {
             return;
+            }
+        }
+        this return does not match the function, we want an error.
+        */
+            return;
+        }  
+        
+
+
         if (ret_type != "void") {
             output::errorMismatch(yylineno);
             exit(0);
