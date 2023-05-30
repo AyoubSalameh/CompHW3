@@ -54,6 +54,11 @@ bool symbol_table_scope::exists_in_scope(const symbol_table_entry& entry) {
             }
             //if we reach this, both are funcs
             if(it->is_override == false) {
+                //wating for answer from piazza @80, if main needs a different error
+               /*  if(it->name == "main"){
+                    output::errorDef(yylineno, entry.name);
+                    exit(0);
+                } */
                 output::errorFuncNoOverride(yylineno, it->name);
                 exit(0);
             }
