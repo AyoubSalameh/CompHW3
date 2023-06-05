@@ -253,7 +253,7 @@ FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
         ids.push_back(param_list[i].name);
     }
     table.insert_symbol(id->name, rt->type, true, override->isOverRide, types);
-    table.insert_func_args(types, ids, rt->type, params->line_num);
+    table.insert_func_args(types, ids, rt->type);
     //buils vector params
 }
 

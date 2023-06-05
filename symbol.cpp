@@ -45,15 +45,11 @@ static bool are_vectors_equal(const vector<string>& a,const  vector<string>& b) 
 ///********************* SYMBOL TABLE SCOPE ********************************///
 
 ///upon inserting, check if exists, if yes, exit program
-bool symbol_table_scope::exists_in_scope(const symbol_table_entry& entry,bool is_fun_args, int func_args_line) {
+bool symbol_table_scope::exists_in_scope(const symbol_table_entry& entry) {
     for(auto it = entries.begin(); it != entries.end(); it++) {
         if(it->name == entry.name) {
             if(it->is_func == false || entry.is_func == false) {
-                if(is_fun_args){
-                    output::errorDef(func_args_line, entry.name); ///be careful
-                    exit(0);
-                }
-                output::errorDef(yylineno, entry.name); ///be careful
+                output::errorDef(yylineno, entry.name);
                 exit(0);
             }
             //added: incase neither is override:
@@ -72,7 +68,7 @@ bool symbol_table_scope::exists_in_scope(const symbol_table_entry& entry,bool is
             }
             //if we reach this, we know that both are override
             if(are_vectors_equal(it->params, entry.params)) {
-                output::errorDef(yylineno, entry.name); ///be careful
+                output::errorDef(yylineno, entry.name);
                 exit(0);
             }
         }
@@ -173,9 +169,9 @@ void table_stack::final_check() {
     this->close_scope();
 }
 
-bool table_stack::symbol_exists(const symbol_table_entry& entry, bool is_fun_args, int func_args_line) {
+bool table_stack::symbol_exists(const symbol_table_entry& entry) {
     for(auto it = tables_stack.begin(); it != tables_stack.end(); it++) {
-        it->exists_in_scope(entry,is_fun_args,func_args_line);
+        it->exists_in_scope(entry);
     }
     return true;
 }
@@ -205,7 +201,7 @@ void table_stack::insert_symbol(const string &n, string t, bool func, bool overr
 }
 
 
-void table_stack::insert_func_args(vector<string> types, vector<string> names, string retType, int arg_dec_line ) {
+void table_stack::insert_func_args(vector<string> types, vector<string> names, string retType) {
     if(DEBUG){
         cout << "in insert_func_args" << tables_stack.size() << endl;
     }
@@ -218,7 +214,7 @@ void table_stack::insert_func_args(vector<string> types, vector<string> names, s
         symbol_table_entry entry(names[i], types[i], offset);
 
         /*checking that we dont insert the same parameter like - foo(int x, int x)*/
-        symbol_exists(entry,true, arg_dec_line);
+        symbol_exists(entry);
 
         this->tables_stack.back().entries.push_back(entry);
 

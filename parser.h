@@ -210,11 +210,10 @@ public:
 
 class Formals: public Node{
 public:
-    int line_num;
     std::vector<FormalDecl> param_list;
 
     //Formals -> FormalsList
-    Formals(FormalsList* fl, int l_n) : line_num(l_n), param_list(fl->param_list) {}
+    Formals(FormalsList* fl, int l_n) : param_list(fl->param_list) {}
 
     //Formals -> epsilon
     Formals() {}
@@ -226,7 +225,7 @@ class FuncDecl : public Node {
 public:
 
     ////FormalDecl -> Type ID
-    FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params);//TODO
+    FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params);
     ~FuncDecl() = default;
 };
 

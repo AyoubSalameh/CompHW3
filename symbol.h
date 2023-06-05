@@ -43,7 +43,7 @@ public:
     symbol_table_scope(bool loop, string ret): is_loop(loop), func_ret_type(ret) {}
     ~symbol_table_scope() = default;
 
-    bool exists_in_scope(const symbol_table_entry& entry, bool is_fun_args = false , int func_args_line = 0);
+    bool exists_in_scope(const symbol_table_entry& entry);
     void insert_to_scope(symbol_table_entry& entry);
     void print_scope(); //end scope, and calls helper function
 
@@ -70,8 +70,8 @@ public:
     void final_check();
     void insert_symbol(const string& n, string t, bool func = false, bool override = false,
                        vector<string> p = vector<string>());
-    void insert_func_args(vector<string> types, vector<string> names, string retType, int arg_dec_line);
-    bool symbol_exists(const symbol_table_entry& entry,bool is_fun_args = false, int func_args_line = 0);    ///used only in insert
+    void insert_func_args(vector<string> types, vector<string> names, string retType);
+    bool symbol_exists(const symbol_table_entry& entry);    ///used only in insert
 
     symbol_table_entry* get_variable(const string& name);
     symbol_table_entry* get_function(const string& name, vector<string> params = {});
