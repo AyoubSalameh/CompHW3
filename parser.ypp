@@ -71,7 +71,7 @@ RetType: Type                                                                   
        ;
 
 Formals: /*epsilon*/                                                            {$$ = new Formals();}
-           | FormalsList                                                        {$$ = new Formals(dynamic_cast<FormalsList*>($1));}
+           | FormalsList                                                        {$$ = new Formals(dynamic_cast<FormalsList*>($1),yylineno);}
        ;
 
 FormalsList: FormalDecl                                                         {$$ = new FormalsList(dynamic_cast<FormalDecl*>($1));}

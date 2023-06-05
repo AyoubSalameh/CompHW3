@@ -210,10 +210,11 @@ public:
 
 class Formals: public Node{
 public:
+    int line_num;
     std::vector<FormalDecl> param_list;
 
     //Formals -> FormalsList
-    Formals(FormalsList* fl) : param_list(fl->param_list) {}
+    Formals(FormalsList* fl, int l_n) : line_num(l_n), param_list(fl->param_list) {}
 
     //Formals -> epsilon
     Formals() {}

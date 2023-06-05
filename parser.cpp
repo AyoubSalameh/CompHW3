@@ -175,8 +175,9 @@ Statement::Statement(Node* n) {
             exit(0);
         }
 
-        if(table.tables_stack.back().is_loop)
-        {
+        
+        //if(table.tables_stack.back().is_loop)
+        //{
         /*TODO: not sure this check is the right thing to do:
         int foo(){
             while(true)
@@ -186,8 +187,8 @@ Statement::Statement(Node* n) {
         }
         this return does not match the function, we want an error.
         */
-            return;
-        }  
+        //    return;
+        //}  
         
 
 
@@ -197,6 +198,7 @@ Statement::Statement(Node* n) {
         }
 
     }
+
     if(n->name == "break") {
         if(!(table.checkLoop())) {
             output::errorUnexpectedBreak(yylineno);
@@ -251,7 +253,7 @@ FuncDecl::FuncDecl(OverRide* override, RetType* rt, Node* id, Formals* params){
         ids.push_back(param_list[i].name);
     }
     table.insert_symbol(id->name, rt->type, true, override->isOverRide, types);
-    table.insert_func_args(types, ids, rt->type);
+    table.insert_func_args(types, ids, rt->type, params->line_num);
     //buils vector params
 }
 
