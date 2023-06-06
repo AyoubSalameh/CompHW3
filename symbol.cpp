@@ -66,7 +66,13 @@ bool symbol_table_scope::exists_in_scope(const symbol_table_entry& entry) {
                 output::errorOverrideWithoutDeclaration(yylineno, it->name);
                 exit(0);
             }
+
             //if we reach this, we know that both are override
+            if(it->type != entry.type){
+                //piazza @92
+                continue;
+            }
+
             if(are_vectors_equal(it->params, entry.params)) {
                 output::errorDef(yylineno, entry.name);
                 exit(0);
